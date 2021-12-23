@@ -1,0 +1,2 @@
+# AssistantTrainingCore
+Assistant Training Core
