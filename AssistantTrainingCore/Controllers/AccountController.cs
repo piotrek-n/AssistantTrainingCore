@@ -62,13 +62,18 @@ namespace AssistantTrainingCore.Controllers
             return View(model);
         }
 
-        //var us = _userManager.Users.ToList();
-        //var user = await _userManager.FindByIdAsync("2000eefd-55cd-4bf7-b509-4266e26b1811");
-        //var u2 = us.Where(u => u.UserName == "admin").First();
+        public async Task<IActionResult> Update()
+        {
+            var us = _userManager.Users.ToList();
+            var user = await _userManager.FindByIdAsync("2000eefd-55cd-4bf7-b509-4266e26b1811");
+            var u2 = us.Where(u => u.UserName == "admin").First();
 
-        //var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        //var resultCh = await _userManager.ResetPasswordAsync(user, token, "ChangeItAsap123!");
-        //var result = await _signInManager.PasswordSignInAsync("admin", "ChangeItAsap123!", false, false);
+            var resultCh = await _userManager.ResetPasswordAsync(user, token, "ChangeItAsap123!");
+            var result = await _signInManager.PasswordSignInAsync("admin", "ChangeItAsap123!", false, false);
+
+            return View();
+        }
     }
 }

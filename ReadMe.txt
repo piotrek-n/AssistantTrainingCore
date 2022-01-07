@@ -25,3 +25,30 @@ where NormalizedUserName is null
             table: "AspNetRoles",
             type: "nvarchar(max)",
             nullable: true);
+
+
+Script:
+
+ALTER TABLE AspNetUsers
+ADD NormalizedUserName varchar(255) NULL;
+
+ALTER TABLE AspNetUsers
+ADD ConcurrencyStamp varchar(255) NULL;
+
+ALTER TABLE AspNetUsers
+ADD NormalizedEmail varchar(255) NULL;
+
+ALTER TABLE AspNetUsers
+ADD LockoutEnd datetime NULL;
+
+update AspNetUsers
+   set NormalizedUserName = UPPER(Email)
+where NormalizedUserName is null
+
+---
+
+ALTER TABLE AspNetRoles
+ADD NormalizedName varchar(255) NULL;
+
+ALTER TABLE AspNetRoles
+ADD ConcurrencyStamp varchar(max) NULL;
