@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace AssistantTrainingCore.Models
+﻿namespace AssistantTrainingCore.Models
 {
     public partial class PodcastViewModel
     {

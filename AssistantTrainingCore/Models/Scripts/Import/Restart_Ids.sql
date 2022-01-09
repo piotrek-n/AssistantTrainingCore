@@ -1,0 +1,3 @@
+--DELETE FROM Instructions
+--DBCC CHECKIDENT ('[Instructions]', RESEED, 0);
+--GO

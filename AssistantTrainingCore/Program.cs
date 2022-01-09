@@ -1,6 +1,7 @@
 ﻿using AssistantTrainingCore.Controllers;
 using AssistantTrainingCore.Data;
 using AssistantTrainingCore.Models;
+using AssistantTrainingCore.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,8 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
         options.SlidingExpiration = true;
         //options.ReturnUrlParameter=""
     });
+
+    services.AddTransient<IWorkerRepository, WorkerRepository>();
 
     builder.Services.AddControllersWithViews()
                     .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver());
