@@ -41,7 +41,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
         options.Cookie.HttpOnly = true;
         //options.Cookie.Expiration
 
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/AccessDenied";

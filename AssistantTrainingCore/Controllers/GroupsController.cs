@@ -1,11 +1,15 @@
 ﻿using AssistantTrainingCore.Data;
 using AssistantTrainingCore.Models;
 using AssistantTrainingCore.ViewModel;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 
 namespace AssistantTrainingCore.Controllers
 {
+    [Authorize]
     public class GroupsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -15,8 +19,7 @@ namespace AssistantTrainingCore.Controllers
             db = dbContext;
         }
 
-        // GET: Groups
-        public ActionResult Index()
+        public ActionResult SelectGroups([DataSourceRequest] DataSourceRequest request)
         {
             //LINQ to Entities does not recognize the method 'System.Linq.IQueryable`
             //FIX Select(x => x).AsEnumerable()
@@ -26,13 +29,33 @@ namespace AssistantTrainingCore.Controllers
                     RowNo = index + 1,
                     GroupName = x.GroupName,
                     ID = x.ID,
-                    Instructions = x.Instructions,
+                    //Instructions = x.Instructions,
                     Tag = x.Tag,
                     TimeOfCreation = x.TimeOfCreation,
                     TimeOfModification = x.TimeOfModification
                 }).ToList();
 
-            return View(result);
+            return Json(result.ToDataSourceResult(request));
+        }
+
+        // GET: Groups
+        public ActionResult Index()
+        {
+            //LINQ to Entities does not recognize the method 'System.Linq.IQueryable`
+            //FIX Select(x => x).AsEnumerable()
+            //var result =
+            //    db.Groups.Select(x => x).AsEnumerable().Select((x, index) => new GroupViewModel()
+            //    {
+            //        RowNo = index + 1,
+            //        GroupName = x.GroupName,
+            //        ID = x.ID,
+            //        //Instructions = x.Instructions,
+            //        Tag = x.Tag,
+            //        TimeOfCreation = x.TimeOfCreation,
+            //        TimeOfModification = x.TimeOfModification
+            //    }).ToList();
+
+            return View(new List<GroupViewModel>());
         }
 
         // GET: Groups/Details/5
@@ -179,7 +202,7 @@ namespace AssistantTrainingCore.Controllers
                     RowNo = index + 1,
                     GroupName = x.GroupName,
                     ID = x.ID,
-                    Instructions = x.Instructions,
+                    //Instructions = x.Instructions,
                     Tag = x.Tag,
                     TimeOfCreation = x.TimeOfCreation,
                     TimeOfModification = x.TimeOfModification
@@ -191,7 +214,6 @@ namespace AssistantTrainingCore.Controllers
         public ActionResult Excel()
         {
             var groups = db.Groups.Select(x => new { Name = x.GroupName }).ToList();
-
 
             try
             {

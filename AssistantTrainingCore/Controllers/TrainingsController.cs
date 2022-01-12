@@ -2,12 +2,14 @@
 using AssistantTrainingCore.Models;
 using AssistantTrainingCore.Repositories;
 using AssistantTrainingCore.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
 
 namespace AssistantTrainingCore.Controllers
 {
+    [Authorize]
     public class TrainingsController : Controller
     {
         /* Staff Training*/
@@ -249,7 +251,7 @@ namespace AssistantTrainingCore.Controllers
         //    var items = workerRepository.GetWorkersByTraining(term, type).OrderBy(p => 0);
         //    var grid = this.gridMvcHelper.GetAjaxGrid(items);
         //    return PartialView(GRID_WORKER_PARTIAL_PATH, grid);
-        //}
+        //}                                                   
 
         public ActionResult DeleteTraining(int id)
         {

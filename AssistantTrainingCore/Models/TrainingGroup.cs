@@ -20,6 +20,6 @@ namespace AssistantTrainingCore.Models
 
         public virtual ICollection<TrainingName> TrainingNames { get; set; }
 
-        public virtual ICollection<Instruction> Instructions { get; set; }
+        //public virtual ICollection<Instruction> Instructions { get; set; }
     }
 }

@@ -20,6 +20,6 @@ namespace AssistantTrainingCore.Models
 
         public string? Tag { get; set; }
 
-        public virtual ICollection<Instruction> Instructions { get; set; }
+        //public virtual ICollection<Instruction> Instructions { get; set; }
     }
 }

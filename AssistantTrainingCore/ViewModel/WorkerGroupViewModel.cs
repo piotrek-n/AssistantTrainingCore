@@ -37,5 +37,7 @@ namespace AssistantTrainingCore.ViewModel
 
         [DisplayName("Zawieszony")]
         public string IsSuspendDesc { get; set; }
+
+        public string GrupsInString { get; set; }
     }
 }

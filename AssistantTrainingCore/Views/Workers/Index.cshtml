@@ -1,5 +1,314 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<AssistantTrainingCore.ViewModel.WorkerGroupViewModel>
+@using Kendo.Mvc
+
+
+
 @{
+    ViewBag.Title = "Index";
 }
+
+@*<h2>Workers</h2>
+
+<div class="row">
+    <div class="col-md-1">
+        @if (User.IsInRole("Administrator"))
+        {
+            <a href="@Url.Action("Create", "Workers")" class="btn btn-default">
+                Create
+                <span class="glyphicon" aria-hidden="true"></span>
+            </a>
+        }
+    </div>
+    <div class="col-md-1">
+        <a href="@Url.Action("Excel", "Workers")" class="btn btn-default">
+            Export
+            <span class="glyphicon" aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-4 pull-right">
+
+        <form class="navbar-form" role="search" id="idFilterWorkersByGroup" method="POST" action="/Workers/SearchByGroup">
+            <div class="input-group">
+                <input type="text" class="typeahead form-control" autocomplete="off" placeholder="Groups" spellcheck="false" name="srchtermWorkerByGroup" id="srchtermWorkerByGroup">
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4 pull-right">
+
+        <form class="navbar-form" role="search" id="idFilterWorkersByWorker" method="POST" action="/Workers/SearchByWorker">
+            <div class="input-group">
+                <input type="text" class="typeahead form-control" autocomplete="off" placeholder="Workers" spellcheck="false" name="srchtermWorkerByWorker" id="srchtermWorkerByWorker">
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>*@
+
+@*@Html.Grid(Model).Columns(columns =>
+{
+    columns.Add()
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth(40)
+    .RenderValueAs(foo => index(foo));
+
+    columns.Add(foo => foo.FullName).Titled("Nazwa").Sortable(true).Filterable(true).SetWidth(110);
+    columns.Add(foo => foo.Tag).Titled("Opis").Sortable(true).Filterable(true).SetWidth(10);
+    columns.Add(foo => foo.IsSuspendDesc).Titled("Zawieszony").Sortable(true).Filterable(true).SetWidth(10);
+
+    columns.Add()
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth(40)
+    .RenderValueAs(foo => Groups(foo));
+
+    columns.Add()
+        .Encoded(false)
+        .Sanitized(false)
+        .SetWidth(30)
+        .RenderValueAs(foo => Edit(foo.ID));
+
+}).WithPaging(50)*@
+
+<h2>Workers</h2>
+
+<p>
+    @if (User.IsInRole("Administrator"))
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <a href="@Url.Action("Create", "Instructions")" class="btn btn-primary" role="button">
+                    Create
+                    <span class="glyphicon" aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+    }
+</p>
+
+@if (User.IsInRole("Administrator") || User.IsInRole("Operator"))
+{
+    <script>
+        var userAdminOrOperator = true;
+    </script>
+
+}
+else
+{
+    <script>
+        var useruserAdminOrEngineer = false;
+    </script>
+
+}
+
+@if (User.IsInRole("Administrator"))
+{
+    <script>
+        var userAdmin = true;
+    </script>
+}
+else
+{
+    <script>
+        var userAdmin = false;
+    </script>
+}
+<script>
+            var CountIt = 0 
+            function GetCountIt() { 
+                var page = $("#workersGrid").data("kendoGrid").dataSource.page();
+                var pageSize = $("#workersGrid").data("kendoGrid").dataSource.pageSize();
+                CountIt++;
+                return (page * pageSize) - pageSize + CountIt 
+            }
+
+            function YourGrid_DataBound() { 
+                CountIt = 0; $('#workersGrid').data('kendoGrid').pager.unbind("change").bind('change', function (e) {
+                    CountIt = 0
+                })
+            }
+
+    function changeNewLine(text) {
+        if(text == null) {
+            return  '<br>';
+        }
+        var regexp = new RegExp('\n', 'g');
+        return text.replace(regexp, '<br>');
+    }
+</script>
+@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.WorkerGroupViewModel>()
+            .Name("workersGrid")
+            .ToolBar(t => t.Search())
+            .ToolBar(tools => tools.Excel())
+                   .Events(events =>
+       {
+          events.DataBound("YourGrid_DataBound"); 
+       })
+            .Columns(columns =>
+            {
+                //columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
+                columns.Bound("").ClientTemplate("#=GetCountIt()#").Title("Lp.").Width(50);
+                columns.Bound(c => c.FullName).Title("Nazwa").Filterable(true).Width(110);
+                columns.Bound(c => c.Tag).Title("Opis").Filterable(true).Width(50);
+                columns.Bound(c => c.IsSuspendDesc).Title("Zawieszony").Filterable(true).Width(30);
+                
+                columns.Bound(p => p.GrupsInString).Title("Grupy").ClientTemplate("#= changeNewLine(GrupsInString) #").Sortable(true).Filterable(true).Width(50);
+
+                columns.Bound(p => p.RowNo)
+                        .Title("Akcja")
+                        .ClientTemplate(" <a href='/Workers/Details/#=ID#'>Details</a> # if (userAdmin == true) { # <a href='/Workers/Edit/#=ID#'>Edit</a> # } # # if (userAdmin == true) { # <a href='/Workers/Delete/#=ID#'>Delete</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+                .Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] { 20,50,100 })
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+              )
+            .Navigatable()
+            .Sortable()
+            .Excel(excel => excel
+		        .FileName("Workers Export.xlsx")
+		        .Filterable(true)
+		        .ProxyURL(Url.Action("Excel_Export_Save", "Workers"))
+	        )
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+
+                .Read(read => read.Action("SelectWorkers", "Workers"))
+            )
+            )
+
+
+
+
+
+
+@*@helper Edit(int Id)
+{
+
+    if (User.IsInRole("Administrator") || User.IsInRole("Operator"))
+    {
+        @Html.ActionLink("Details", "Details", new { id = Id })
+
+    }
+    if (User.IsInRole("Administrator"))
+    {
+
+        @:| @Html.ActionLink("Edit", "Edit", new { id = Id })
+    }
+    if (User.IsInRole("Administrator"))
+    {
+        @:| @Html.ActionLink("Delete", "Delete", new { id = Id })
+    }
+}
+
+@helper Groups(AssistantTraining.ViewModel.WorkerGroupViewModel item)
+{
+    @String.Join(" ", item.Items.Where(x => item.SelectedIds.Contains(x.Value)).Select(x => x.Text).ToArray())
+}
+
+@helper IsSuspend(bool isSuspended)
+{
+    if (isSuspended)
+    {
+        @Html.Label("TAK")
+    }
+    else
+    {
+        @Html.Label("NIE")
+    }
+}
+
+@helper index(AssistantTraining.ViewModel.WorkerGroupViewModel item)
+{
+
+    object column;
+    object dir = String.Empty;
+    int index = 0;
+
+    if (!String.IsNullOrEmpty(Request.QueryString["grid-column"]))
+    {
+        column = Request.QueryString["grid-column"];
+
+        if (!String.IsNullOrEmpty(Request.QueryString["grid-column"]))
+        {
+            dir = Request.QueryString["grid-dir"];
+        }
+
+        switch (column.ToString())
+        {
+            case "FullName":
+
+                if (!String.IsNullOrEmpty(dir.ToString()) && dir.ToString().Equals("1"))
+                {
+                    index = Model.OrderByDescending(x => x.FullName).ToList().FindIndex(x => x.ID == item.ID) + 1;
+                }
+                else
+                {
+                    index = Model.OrderBy(x => x.FullName).ToList().FindIndex(x => x.ID == item.ID) + 1;
+                }
+                break;
+
+            case "Tag":
+
+                if (!String.IsNullOrEmpty(dir.ToString()) && dir.ToString().Equals("1"))
+                {
+                    index = Model.OrderByDescending(x => x.Tag).ToList().FindIndex(x => x.ID == item.ID) + 1;
+                }
+                else
+                {
+                    index = Model.OrderBy(x => x.Tag).ToList().FindIndex(x => x.ID == item.ID) + 1;
+                }
+
+                break;
+            case "IsSuspendDesc":
+
+                if (!String.IsNullOrEmpty(dir.ToString()) && dir.ToString().Equals("1"))
+                {
+                    index = Model.OrderByDescending(x => x.IsSuspendDesc).ToList().FindIndex(x => x.ID == item.ID) + 1;
+                }
+                else
+                {
+                    index = Model.OrderBy(x => x.IsSuspendDesc).ToList().FindIndex(x => x.ID == item.ID) + 1;
+                }
+
+                break;
+            default:
+                break;
+        }
+
+    }
+    else
+    {
+        index = Model.ToList().FindIndex(x => x.ID == item.ID) + 1;
+    }
+
+    @Html.Label(index.ToString())
+}
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/application/workers")
+}*@
+

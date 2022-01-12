@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AssistantTrainingCore.Models
 {
@@ -19,16 +20,19 @@ namespace AssistantTrainingCore.Models
 
         public DateTime TimeOfModification { get; set; }
 
-        public string Tag { get; set; }
+        public string? Tag { get; set; }
 
-        public string CreatedByUserId { get; set; }
+        public string? CreatedByUserId { get; set; }
 
         public bool Reminder { get; set; }
 
+        //[ForeignKey("GroupId")]
         //public int GroupId { get; set; }
+
         //public Group Group { get; set; }
 
-        //public int GroupInstructionId { get; set; }
-        //public GroupInstruction GroupInstruction { get; set; }
+        //[ForeignKey("TrainingGroup_ID")]
+        //public int TrainingGroupId { get; set; }
+        //public TrainingGroup TrainingGroup { get; set; }
     }
 }

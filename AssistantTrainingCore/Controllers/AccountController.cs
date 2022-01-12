@@ -1,4 +1,7 @@
 ﻿using AssistantTrainingCore.Models;
+using AssistantTrainingCore.ViewModel;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +22,40 @@ namespace AssistantTrainingCore.Controllers
 
         public IActionResult Index()
         {
+
             return View();
+        }
+
+        public ActionResult SelectUsers([DataSourceRequest] DataSourceRequest request)
+        {
+            var users = _userManager.Users.ToList();
+            var usersDto = new List<AccountIndexData>();
+
+            foreach (var v in users)
+            {
+                var inputModel = new AccountIndexData
+                {
+                    ID = v.Id,
+                    UserName = v.UserName,
+                    RolesInString = string.Empty
+                };
+
+                var roles = _userManager.GetRolesAsync(v).GetAwaiter().GetResult();
+                foreach (var r in roles)
+                {
+                    if (!inputModel.RolesInString.Contains(","))
+                    {
+                        inputModel.RolesInString = r;
+                    }
+                    else
+                    {
+                        inputModel.RolesInString = "," + r;
+                    }
+                }
+                usersDto.Add(inputModel);
+            }
+
+            return Json(usersDto.ToDataSourceResult(request));
         }
 
         public IActionResult Register()
@@ -38,7 +74,7 @@ namespace AssistantTrainingCore.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(Models.LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)

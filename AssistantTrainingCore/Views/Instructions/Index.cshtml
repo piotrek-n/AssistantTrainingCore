@@ -1,5 +1,104 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<AssistantTrainingCore.ViewModel.InstructionIndexData>
+@using Kendo.Mvc
+
 @{
+    ViewBag.Title = "Instructions";
 }
+
+@if (User.IsInRole("Administrator") || User.IsInRole("Engineer"))
+{
+    <script>
+        var userAdminOrEngineer = true;
+    </script>
+
+}
+else
+{
+    <script>
+        var useruserAdminOrEngineer = false;
+    </script>
+
+}
+
+@if (User.IsInRole("Administrator"))
+{
+    <script>
+        var userAdmin = true;
+    </script>
+}
+else
+{
+    <script>
+        var userAdmin = false;
+    </script>
+}
+
+<script>
+    function changeNewLine(text) {
+        var regexp = new RegExp('\n', 'g');
+        return text.replace(regexp, '<br>');
+    }
+</script>
+<h2>Instructions</h2>
+
+<p>
+    @if (User.IsInRole("Administrator") || User.IsInRole("Engineer") || User.IsInRole("Operator"))
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <a href="@Url.Action("Create", "Instructions")" class="btn btn-primary" role="button">
+                    Create
+                    <span class="glyphicon" aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+    }
+</p>
+
+@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.InstructionIndexData>()
+            .Name("grid")
+            .ToolBar(t => t.Search())
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
+                columns.Bound(c => c.Name).Title("Nazwa").Filterable(true).Width(110);
+                columns.Bound(c => c.Number).Title("Numer").Filterable(true).Width(50);
+                columns.Bound(c => c.Version).Title("Wersja").Filterable(true).Width(30);
+                columns.Bound(c => c.UserName).Title("Użytkownik").Filterable(true).Width(50);
+                columns.Bound(c => c.TimeOfCreation).Title("Data").Sortable(true).Filterable(true).Width(50);
+
+                columns.Bound(p => p.GrupsInString).Title("Grupy").ClientTemplate("#= changeNewLine(GrupsInString) #").Sortable(true).Filterable(true).Width(50);
+
+                columns.Bound(p => p.Name)
+                        .Title("Akcja")
+                        .ClientTemplate(" <a href='/Instructions/Details/#=ID#'>Details</a> # if (userAdminOrEngineer == true) { # <a href='/Instructions/Edit/#=ID#'>Edit</a> # } # # if (userAdmin == true) { # <a href='/Instructions/Delete/#=ID#'>Delete</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+                .Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] { 20,50,100 })
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+              )
+            .Navigatable()
+            .Sortable()
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+
+                .Read(read => read.Action("Select", "Instructions"))
+            )
+)

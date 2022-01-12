@@ -1,5 +1,101 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<AssistantTrainingCore.ViewModel.GroupViewModel>
+
 @{
+    ViewBag.Title = "Groups";
 }
+
+<h2>Groups</h2>
+
+@*<div class="row">
+    <div class="col-md-1">
+        <a href="@Url.Action("Create", "Groups")" class="btn btn-default">
+            Create
+            <span class="glyphicon" aria-hidden="true"></span>
+        </a>
+    </div>
+        <div class="col-md-1">
+            <a href="@Url.Action("Excel", "Groups")" class="btn btn-default">
+                Export
+                <span class="glyphicon" aria-hidden="true"></span>
+            </a>
+        </div>
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-4 pull-right">
+
+            <form class="navbar-form" role="search" id="idFilterWorkersByWorker" method="get" action="/Groups/SearchByGroup">
+                <div class="input-group">
+                    <input type="text" class="typeahead form-control" autocomplete="off" placeholder="Groups" spellcheck="false" name="srchtermWorkerByGroup" id="srchtermWorkerByGroup">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+*@
+
+@if (User.IsInRole("Administrator") || User.IsInRole("Engineer"))
+{
+    <script>
+        var userAdminOrEngineer = true;
+    </script>
+
+}
+else
+{
+    <script>
+        var useruserAdminOrEngineer = false;
+    </script>
+
+}
+
+@if (User.IsInRole("Administrator"))
+{
+    <script>
+        var userAdmin = true;
+    </script>
+}
+else
+{
+    <script>
+        var userAdmin = false;
+    </script>
+}
+
+@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.GroupViewModel>()
+            .Name("gridGroup")
+            .ToolBar(t => t.Search())
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
+                columns.Bound(c => c.GroupName).Title("Nazwa").Filterable(true).Width(110);
+
+                columns.Bound(c => c.GroupName)
+                        .Title("Akcja")
+                        .ClientTemplate(" <a href='/Groups/Details/#=ID#'>Details</a> # if (userAdminOrEngineer == true) { # <a href='/Groups/Edit/#=ID#'>Edit</a> # } # # if (userAdmin == true) { # <a href='/Groups/Delete/#=ID#'>Delete</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+                .Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] { 20,50,100 })
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+              )
+            .Navigatable()
+            .Sortable()
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+
+                .Read(read => read.Action("SelectGroups", "Groups"))
+            )
+)

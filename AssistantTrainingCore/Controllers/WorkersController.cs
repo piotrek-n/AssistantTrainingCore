@@ -2,12 +2,16 @@
 using AssistantTrainingCore.Models;
 using AssistantTrainingCore.Repositories;
 using AssistantTrainingCore.ViewModel;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml;
 
 namespace AssistantTrainingCore.Controllers
 {
+    [Authorize]
     public class WorkersController : Controller
     {
         private ApplicationDbContext db;
@@ -21,8 +25,33 @@ namespace AssistantTrainingCore.Controllers
 
         public IActionResult Index()
         {
-            GetIndexData();
+            //GetIndexData();
             return View();
+        }
+
+        public ActionResult SelectWorkers([DataSourceRequest] DataSourceRequest request)
+        {
+            return Json(GetIndexData().ToDataSourceResult(request));
+        }
+
+        public ActionResult Excel_Export_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            var workers =
+             (from w in db.Workers
+              join gw in db.GroupWorkers on w.ID equals gw.WorkerId
+              join g in db.Groups on gw.GroupId equals g.ID
+              orderby w.LastName, w.FirstMidName
+              select new { FullName = w.FirstMidName + " " + w.LastName, w.IsSuspend, g.GroupName }
+              ).ToList();
+            return Json(workers.ToDataSourceResult(request));
+        }
+
+        [HttpPost]
+        public ActionResult Excel_Export_Save(string contentType, string base64, string fileName)
+        {
+            var fileContents = Convert.FromBase64String(base64);
+
+            return File(fileContents, contentType, fileName);
         }
 
         // GET: Workers/Details/5
@@ -34,19 +63,20 @@ namespace AssistantTrainingCore.Controllers
             }
 
             var worker = db.Workers.Find(id);
-
-            var workerGroup = new WorkerViewModel();
             var groups = workerRepository.GetAllGroups();
 
-            workerGroup.AvailableGroups = groups;
+            var workerGroup = new WorkerViewModel
+            {
+                AvailableGroups = groups,
 
-            workerGroup.FirstMidName = worker.FirstMidName;
-            workerGroup.LastName = worker.LastName;
-            workerGroup.ID = worker.ID;
-            workerGroup.Tag = worker.Tag;
-            workerGroup.IsSuspend = worker.IsSuspend;
-            workerGroup.PostingGroups = new PostingGroup() { GroupIDs = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.GroupId.ToString()).ToArray() };
-            workerGroup.SelectedGroups = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.Group).ToList();
+                FirstMidName = worker.FirstMidName,
+                LastName = worker.LastName,
+                ID = worker.ID,
+                Tag = worker.Tag,
+                IsSuspend = worker.IsSuspend,
+                PostingGroups = new PostingGroup() { GroupIDs = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.GroupId.ToString()).ToArray() },
+                SelectedGroups = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.Group).ToList()
+            };
 
             if (worker == null)
             {
@@ -350,25 +380,28 @@ namespace AssistantTrainingCore.Controllers
             int RowNo = 0;
             foreach (var item in allWorker)
             {
-                var workerGroup = new WorkerGroupViewModel();
-
-                workerGroup.ID = item.ID;
-                workerGroup.FirstMidName = item.FirstMidName;
-                workerGroup.LastName = item.LastName;
-                workerGroup.FullName = item.LastName + " " + item.FirstMidName;
-                workerGroup.Tag = item.Tag;
-                workerGroup.SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.GroupId.ToString()).ToArray();
-                workerGroup.WorkerGroups = groups;
-                workerGroup.Items = groups.Select(x => new SelectListItem
-                {
-                    Value = x.ID.ToString(),
-                    Text = x.GroupName
-                });
-                workerGroup.IsSuspend = item.IsSuspend;
-                workerGroup.IsSuspendDesc = item.IsSuspend == true ? "Tak" : "Nie";
-
                 RowNo += 1;
-                workerGroup.RowNo = RowNo;
+
+                var workerGroup = new WorkerGroupViewModel
+                {
+                    RowNo = RowNo,
+                    ID = item.ID,
+                    FirstMidName = item.FirstMidName,
+                    LastName = item.LastName,
+                    FullName = item.LastName + " " + item.FirstMidName,
+                    Tag = item.Tag,
+                    SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.GroupId.ToString()).ToArray(),
+                    WorkerGroups = groups,
+                    Items = groups.Select(x => new SelectListItem
+                    {
+                        Value = x.ID.ToString(),
+                        Text = x.GroupName
+                    }),
+                    IsSuspend = item.IsSuspend,
+                    IsSuspendDesc = item.IsSuspend == true ? "Tak" : "Nie"
+                };
+
+                workerGroup.GrupsInString = String.Join("\n", workerGroup.Items.Where(x => workerGroup.SelectedIds.Contains(x.Value)).Select(x => x.Text).ToArray());
 
                 lstWorkerGroups.Add(workerGroup);
             }

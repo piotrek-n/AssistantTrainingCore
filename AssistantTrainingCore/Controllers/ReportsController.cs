@@ -1,9 +1,11 @@
 ﻿using AssistantTrainingCore.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AssistantTrainingCore.Controllers
 {
+    [Authorize]
     public class ReportsController : Controller
     {
         //private IGridMvcHelper gridMvcHelper;

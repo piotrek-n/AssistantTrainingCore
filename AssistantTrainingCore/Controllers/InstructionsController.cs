@@ -4,6 +4,7 @@ using AssistantTrainingCore.Repositories;
 using AssistantTrainingCore.ViewModel;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,6 +12,7 @@ using OfficeOpenXml;
 
 namespace AssistantTrainingCore.Controllers
 {
+    [Authorize]
     public class InstructionsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -62,17 +64,28 @@ namespace AssistantTrainingCore.Controllers
 
         public ActionResult Select([DataSourceRequest] DataSourceRequest request)
         {
-            var newInstructions =
-                (from i in db.Instructions
-                 group i by i.Number
-                    into groupedI
-                 let maxVersion = groupedI.Max(v => v.Version)
-                 select new InstructionLatestVersion
-                 {
-                     Key = groupedI.Key,
-                     maxVersion = maxVersion,
-                     ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
-                 }).ToList();
+            var newInstructions = db.Instructions.GroupBy(c => c.Number)
+                                .Select(g => new
+                                {
+                                    Key = g.Key,
+                                    ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
+                                    maxVersion = g.Max(x => x.Version)
+                                }).ToList();
+
+            //var newInstructions =
+            //    (from i in db.Instructions
+            //     group i by i.Number
+            //        into groupedI
+            //     let maxVersion = groupedI.Max(v => v.Version)
+            //     select new InstructionLatestVersion
+            //     {
+            //         Key = groupedI.Key,
+            //         maxVersion = maxVersion
+            //         ,ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
+            //     }).AsEnumerable();
+
+
+            var test = db.Instructions.ToList();
 
             var allInstructions =
                 db.Instructions.ToList().Where(x => newInstructions.Any(ni => ni.ID == x.ID)).OrderByDescending(ins => ins.TimeOfCreation).ToList();
@@ -160,7 +173,7 @@ namespace AssistantTrainingCore.Controllers
                 GroupName = x.GroupName,
                 RowNo = i + 1,
                 ID = x.ID,
-                Instructions = x.Instructions,
+                //Instructions = x.Instructions,
                 Tag = x.Tag,
                 TimeOfCreation = x.TimeOfCreation,
                 TimeOfModification = x.TimeOfModification
