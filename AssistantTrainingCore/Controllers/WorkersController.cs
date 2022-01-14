@@ -93,6 +93,52 @@ namespace AssistantTrainingCore.Controllers
 
             workerGroup.AvailableGroups = groups;
 
+            workerGroup.CheckBoxGroupValue = new string[] { "" };
+
+            workerGroup.ItemsList = groups.Select(x => new InputGroupItemModel
+            {
+                Value = x.ID.ToString(),
+                Label = x.GroupName,
+                Enabled = true,
+                Encoded = false,
+                CssClass = "test",
+                HtmlAttributes = new Dictionary<string, object>() { { "data-custom", "custom" } }
+            }).ToList<IInputGroupItem>();
+
+            //var itemsList = new List<IInputGroupItem>()
+            //{
+            //    new InputGroupItemModel()
+            //    {
+            //        Label = "Green",
+            //        Enabled = true,
+            //        CssClass = "green",
+            //        Encoded = false,
+            //        Value = "one",
+            //        HtmlAttributes = new Dictionary<string,object>() { { "data-custom", "custom" } }
+            //    },
+            //     new InputGroupItemModel()
+            //    {
+            //        Label = "Blue",
+            //        Enabled = true,
+            //        Encoded = false,
+            //        CssClass = "blue",
+            //        Value = "two"
+            //    },
+            //      new InputGroupItemModel()
+            //    {
+            //        Label = "Red",
+            //        Enabled = true,
+            //        Encoded = false,
+            //        CssClass = "red",
+            //        Value = "three",
+            //        HtmlAttributes = new Dictionary<string,object>() { { "data-custom", "custom" } }
+            //    }
+            //};
+
+            //workerGroup.ItemsList = itemsList;
+
+            //workerGroup.CheckBoxGroupValue = new string[] { "two" };
+
             return View(workerGroup);
         }
 
@@ -100,41 +146,37 @@ namespace AssistantTrainingCore.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult Create(WorkerViewModel workerGroup)
         {
-            if (ModelState.IsValid)
+            var worker = new Worker
             {
-                var worker = new Worker();
-                worker.TimeOfCreation = DateTime.Now;
-                worker.TimeOfModification = DateTime.Now;
-                worker.LastName = workerGroup.LastName;
-                worker.FirstMidName = workerGroup.FirstMidName;
-                worker.Tag = workerGroup.Tag;
+                TimeOfCreation = DateTime.Now,
+                TimeOfModification = DateTime.Now,
+                LastName = workerGroup.LastName,
+                FirstMidName = workerGroup.FirstMidName,
+                Tag = workerGroup.Tag
+            };
 
-                db.Workers.Add(worker);
-                db.SaveChanges();
+            db.Workers.Add(worker);
+            db.SaveChanges();
 
-                if (workerGroup.PostingGroups != null && workerGroup.PostingGroups.GroupIDs != null && workerGroup.PostingGroups.GroupIDs.Count() > 0)
+            if (workerGroup.PostingGroups != null && workerGroup.PostingGroups.GroupIDs != null && workerGroup.PostingGroups.GroupIDs.Count() > 0)
+            {
+                foreach (var item in workerGroup.PostingGroups.GroupIDs)
                 {
-                    foreach (var item in workerGroup.PostingGroups.GroupIDs)
+                    var groupInstructions = new GroupWorker()
                     {
-                        var groupInstructions = new GroupWorker()
-                        {
-                            WorkerId = worker.ID,
-                            TimeOfCreation = DateTime.Now,
-                            TimeOfModification = DateTime.Now,
-                            GroupId = Int32.Parse(item)
-                        };
-                        db.GroupWorkers.Add(groupInstructions);
-                        db.SaveChanges();
-                    }
+                        WorkerId = worker.ID,
+                        TimeOfCreation = DateTime.Now,
+                        TimeOfModification = DateTime.Now,
+                        GroupId = Int32.Parse(item)
+                    };
+                    db.GroupWorkers.Add(groupInstructions);
+                    db.SaveChanges();
                 }
-
-                return RedirectToAction("Index");
             }
 
-            return View(workerGroup);
+            return RedirectToAction("Index");
         }
 
         // GET: Workers/Edit/5

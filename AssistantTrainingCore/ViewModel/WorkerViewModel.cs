@@ -1,4 +1,5 @@
 ﻿using AssistantTrainingCore.Models;
+using Kendo.Mvc.UI;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -33,6 +34,12 @@ namespace AssistantTrainingCore.ViewModel
 
         [DisplayName("Zawieszony")]
         public bool IsSuspend { get; set; }
+
+        [DisplayName("Lista Grup")]
+        public List<IInputGroupItem> ItemsList { get; set; }
+
+        //[Required]
+        public string[] CheckBoxGroupValue { get; set; }
     }
 
     // Helper class to make posting back selected values easier

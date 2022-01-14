@@ -4,78 +4,8 @@
 
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Workers";
 }
-
-@*<h2>Workers</h2>
-
-<div class="row">
-    <div class="col-md-1">
-        @if (User.IsInRole("Administrator"))
-        {
-            <a href="@Url.Action("Create", "Workers")" class="btn btn-default">
-                Create
-                <span class="glyphicon" aria-hidden="true"></span>
-            </a>
-        }
-    </div>
-    <div class="col-md-1">
-        <a href="@Url.Action("Excel", "Workers")" class="btn btn-default">
-            Export
-            <span class="glyphicon" aria-hidden="true"></span>
-        </a>
-    </div>
-    <div class="col-md-2">
-    </div>
-    <div class="col-md-4 pull-right">
-
-        <form class="navbar-form" role="search" id="idFilterWorkersByGroup" method="POST" action="/Workers/SearchByGroup">
-            <div class="input-group">
-                <input type="text" class="typeahead form-control" autocomplete="off" placeholder="Groups" spellcheck="false" name="srchtermWorkerByGroup" id="srchtermWorkerByGroup">
-                <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="col-md-4 pull-right">
-
-        <form class="navbar-form" role="search" id="idFilterWorkersByWorker" method="POST" action="/Workers/SearchByWorker">
-            <div class="input-group">
-                <input type="text" class="typeahead form-control" autocomplete="off" placeholder="Workers" spellcheck="false" name="srchtermWorkerByWorker" id="srchtermWorkerByWorker">
-                <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>*@
-
-@*@Html.Grid(Model).Columns(columns =>
-{
-    columns.Add()
-    .Encoded(false)
-    .Sanitized(false)
-    .SetWidth(40)
-    .RenderValueAs(foo => index(foo));
-
-    columns.Add(foo => foo.FullName).Titled("Nazwa").Sortable(true).Filterable(true).SetWidth(110);
-    columns.Add(foo => foo.Tag).Titled("Opis").Sortable(true).Filterable(true).SetWidth(10);
-    columns.Add(foo => foo.IsSuspendDesc).Titled("Zawieszony").Sortable(true).Filterable(true).SetWidth(10);
-
-    columns.Add()
-    .Encoded(false)
-    .Sanitized(false)
-    .SetWidth(40)
-    .RenderValueAs(foo => Groups(foo));
-
-    columns.Add()
-        .Encoded(false)
-        .Sanitized(false)
-        .SetWidth(30)
-        .RenderValueAs(foo => Edit(foo.ID));
-
-}).WithPaging(50)*@
 
 <h2>Workers</h2>
 
@@ -84,7 +14,7 @@
     {
         <div class="row">
             <div class="col-md-4">
-                <a href="@Url.Action("Create", "Instructions")" class="btn btn-primary" role="button">
+                <a href="@Url.Action("Create", "Workers")" class="btn btn-primary" role="button">
                     Create
                     <span class="glyphicon" aria-hidden="true"></span>
                 </a>
