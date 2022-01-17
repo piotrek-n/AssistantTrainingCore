@@ -63,9 +63,54 @@ else
     </script>
 }
 
+<p>
+        <div class="row">
+            <div class="col-md-4">
+                <a href="@Url.Action("Create", "Groups")" class="btn btn-primary" role="button">
+                    Create
+                    <span class="glyphicon" aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+</p>
+
+<script>
+        var CountIt = 0 
+        function GetCountIt() { 
+            var page = $("#gridGroup").data("kendoGrid").dataSource.page();
+            var pageSize = $("#gridGroup").data("kendoGrid").dataSource.pageSize();
+            CountIt++;
+            return (page * pageSize) - pageSize + CountIt 
+        }
+
+        function YourGrid_DataBound() { 
+                CountIt = 0; $('#gridGroup').data('kendoGrid').pager.unbind("change").bind('change', function (e) {
+                CountIt = 0
+            })
+        }
+
+    function changeNewLine(text) {
+        if(text == null) {
+            return  '<br>';
+        }
+        var regexp = new RegExp('\n', 'g');
+        return text.replace(regexp, '<br>');
+    }
+</script>
+
 @(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.GroupViewModel>()
             .Name("gridGroup")
             .ToolBar(t => t.Search())
+            .ToolBar(tools => tools.Excel())
+            .Events(events =>
+            {
+                events.DataBound("YourGrid_DataBound"); 
+            })
             .Columns(columns =>
             {
                 columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
@@ -91,6 +136,11 @@ else
               )
             .Navigatable()
             .Sortable()
+            .Excel(excel => excel
+		        .FileName("Groups Export.xlsx")
+		        .Filterable(true)
+		        .ProxyURL(Url.Action("Excel_Export_Save", "Groups"))
+	        )
             .Filterable()
             .DataSource(dataSource => dataSource
                 .Ajax()

@@ -21,8 +21,6 @@ namespace AssistantTrainingCore.Controllers
 
         public ActionResult SelectGroups([DataSourceRequest] DataSourceRequest request)
         {
-            //LINQ to Entities does not recognize the method 'System.Linq.IQueryable`
-            //FIX Select(x => x).AsEnumerable()
             var result =
                 db.Groups.Select(x => x).AsEnumerable().Select((x, index) => new GroupViewModel()
                 {
@@ -38,23 +36,75 @@ namespace AssistantTrainingCore.Controllers
             return Json(result.ToDataSourceResult(request));
         }
 
+        public ActionResult SelectGroupDetails([DataSourceRequest] DataSourceRequest request, int id)
+        {
+            if (id == null)
+            {
+                return BadRequest();
+            }
+            var group = db.Groups.Find(id);
+            if (group == null)
+            {
+                return NotFound();
+            }
+            var groupDetails = new GroupDetails
+            {
+                ID = group.ID,
+                GroupName = group.GroupName
+            };
+
+
+            var items = db.Instructions.GroupBy(c => c.Number)
+                               .Select(g => new
+                               {
+                                   Key = g.Key,
+                                   ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
+                                   maxVersion = g.Max(x => x.Version)
+                               }).Select(x => x.ID).ToList();
+
+            var lst = (from ig in db.InstructionGroups
+                       join i in db.Instructions on ig.InstructionId equals i.ID
+                       where ig.GroupId == id && items.Contains(i.ID)
+                       select i).ToList();
+
+            if (lst != null && lst.Count > 0)
+            {
+                groupDetails.Instructions = new List<InstructionInGroup>();
+                foreach (var item in lst)
+                {
+                    groupDetails.Instructions.Add(new InstructionInGroup() { Name = item.Name, Number = item.Number, Version = item.Version, ID = item.ID });
+                }
+            }
+
+            return Json(groupDetails.Instructions.ToDataSourceResult(request));
+        }
+
+        public ActionResult Excel_Export_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            var result =
+                db.Groups.Select(x => x).AsEnumerable().Select((x, index) => new GroupViewModel()
+                {
+                    RowNo = index + 1,
+                    GroupName = x.GroupName,
+                    ID = x.ID,
+                    Tag = x.Tag,
+                    TimeOfCreation = x.TimeOfCreation,
+                    TimeOfModification = x.TimeOfModification
+                }).ToList();
+            return Json(result.ToDataSourceResult(request));
+        }
+
+        [HttpPost]
+        public ActionResult Excel_Export_Save(string contentType, string base64, string fileName)
+        {
+            var fileContents = Convert.FromBase64String(base64);
+
+            return File(fileContents, contentType, fileName);
+        }
+
         // GET: Groups
         public ActionResult Index()
         {
-            //LINQ to Entities does not recognize the method 'System.Linq.IQueryable`
-            //FIX Select(x => x).AsEnumerable()
-            //var result =
-            //    db.Groups.Select(x => x).AsEnumerable().Select((x, index) => new GroupViewModel()
-            //    {
-            //        RowNo = index + 1,
-            //        GroupName = x.GroupName,
-            //        ID = x.ID,
-            //        //Instructions = x.Instructions,
-            //        Tag = x.Tag,
-            //        TimeOfCreation = x.TimeOfCreation,
-            //        TimeOfModification = x.TimeOfModification
-            //    }).ToList();
-
             return View(new List<GroupViewModel>());
         }
 
@@ -76,17 +126,14 @@ namespace AssistantTrainingCore.Controllers
                 GroupName = group.GroupName
             };
 
-            //
-            var items = (
-                from i in db.Instructions
-                group i by i.Number into groupedI
-                let maxVersion = groupedI.Max(gt => gt.Version)
-                select new
-                {
-                    Key = groupedI.Key,
-                    ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
-                }
-            ).Select(x => x.ID).ToList();
+
+            var items = db.Instructions.GroupBy(c => c.Number)
+                               .Select(g => new
+                               {
+                                   Key = g.Key,
+                                   ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
+                                   maxVersion = g.Max(x => x.Version)
+                               }).Select(x => x.ID).ToList();
 
             var lst = (from ig in db.InstructionGroups
                        join i in db.Instructions on ig.InstructionId equals i.ID
@@ -243,8 +290,8 @@ namespace AssistantTrainingCore.Controllers
         {
             var workers = (from t in db.Trainings
                            join w in db.Workers on t.WorkerId equals w.ID
-                           where t.InstructionId.Equals(id) && t.DateOfTraining > new DateTime(2000, 1, 1)
-                           select w);
+                           where t.InstructionId.Equals(id) && !t.DateOfTraining.ToString().Equals("1900-01-01 00:00:00.000") //> new DateTime(2000, 1, 1)
+                           select w).ToList();
 
             return View(workers);
         }

@@ -1,0 +1,44 @@
+﻿@model IEnumerable<AssistantTrainingCore.Models.Worker>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstMidName)
+        </th>
+
+        <th>
+            Opis
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.IsSuspend)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.LastName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FirstMidName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Tag)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.IsSuspend)
+        </td>
+
+    </tr>
+}
+
+</table>
+
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>
