@@ -1,0 +1,135 @@
+﻿@model AssistantTrainingCore.ViewModel.WorkerViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-center ">
+        <section class="col-4">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-horizontal">
+                    <h4>Edit Worker</h4>
+                    <hr/>
+                    @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+                    @Html.HiddenFor(model => model.ID)
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LastName, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.LastName, new {htmlAttributes = new {@class = "form-control"}})
+                            @Html.ValidationMessageFor(model => model.LastName, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.FirstMidName, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.FirstMidName, new {htmlAttributes = new {@class = "form-control"}})
+                            @Html.ValidationMessageFor(model => model.FirstMidName, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Tag, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Tag, new {htmlAttributes = new {@class = "form-control"}})
+                            @Html.ValidationMessageFor(model => model.Tag, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AvailableGroups, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+
+                            @(Html.Kendo().CheckBoxGroup()
+                                .Name("CheckBoxGroupValue")
+                                .Value(Model?.CheckBoxGroupValue)
+                                .Items(i =>
+                                {
+                                    foreach (var l in Model.ItemsList)
+                                    {
+                                        i.Add().Label(l.Label).Value(l.Value);
+                                    }
+                                }))
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="checkboxField">Zawieszony</label>
+                        <div class="col-md-10">
+                            <!-- bootstrap button group -->
+                            <div class="btn-group btn-toggle-radio" data-toggle="buttons-radio">
+                                <button type="button" data-model-field="checkboxField" class="btn btn-default" id="buttonFilterYes">Yes</button>
+                                <button type="button" data-model-field="checkboxField" class="btn btn-success active" id="buttonFilterNo">No</button>
+                            </div>
+                            @Html.HiddenFor(model => model.IsSuspend)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Save" class="btn btn-default"/>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div>
+                @Html.ActionLink("Back to List", "Index", new {@class = "btn btn-default"})
+            </div>
+        </section>
+    </div>
+</div>
+
+
+@*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        @if (Model.IsSuspend == true)
+        {
+            @:$("#buttonFilterNo").removeClass("active btn-success");
+            @:$("#buttonFilterNo").addClass("btn-default");
+            @:$("#buttonFilterYes").removeClass("btn-default");
+            @: $("#buttonFilterYes").addClass("active btn-success");
+
+            @:$("#buttonFilterYes").prop("checked", true);
+            @:document.getElementById('IsSuspend').value = "true";
+            //@:alert($("#IsSuspend").val());
+        }
+        else
+        {
+            @:$("#buttonFilterYes").removeClass("active btn-success");
+            @:$("#buttonFilterYes").addClass("btn-default");
+            @:$("#buttonFilterNo").removeClass("btn-default");
+            @: $("#buttonFilterNo").addClass("active btn-success");
+
+            @:$("#buttonFilterNo").prop("checked", false);
+            @:document.getElementById('IsSuspend').value = "false";
+            //@:alert($("#IsSuspend").val());
+        }
+
+    });
+    $(".btn-toggle-radio button").click(function () {
+        //  do the Bootstrap formatting
+        $(this).siblings().removeClass("active btn-success");
+        $(this).siblings().addClass("btn-default");
+        $(this).removeClass("btn-default");
+        $(this).addClass("active btn-success");
+        //  get the data attribute that matches the model field name
+        var checkboxToUpdate = $(this).attr("data-model-field");
+        //  did the user click YES or NO?
+        if ($(this).attr("id") == "buttonFilterYes") {
+            $("#" + checkboxToUpdate).prop("checked", true);
+            document.getElementById('IsSuspend').value = "true";
+            //alert($("#IsSuspend").val());
+        } else {
+            $("#" + checkboxToUpdate).prop("checked", false);
+            document.getElementById('IsSuspend').value = "false";
+            //alert($("#IsSuspend").val());
+        }
+    });
+</script>

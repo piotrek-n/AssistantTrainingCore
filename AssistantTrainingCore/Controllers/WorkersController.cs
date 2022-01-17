@@ -37,12 +37,12 @@ namespace AssistantTrainingCore.Controllers
         public ActionResult Excel_Export_Read([DataSourceRequest] DataSourceRequest request)
         {
             var workers =
-             (from w in db.Workers
-              join gw in db.GroupWorkers on w.ID equals gw.WorkerId
-              join g in db.Groups on gw.GroupId equals g.ID
-              orderby w.LastName, w.FirstMidName
-              select new { FullName = w.FirstMidName + " " + w.LastName, w.IsSuspend, g.GroupName }
-              ).ToList();
+                (from w in db.Workers
+                    join gw in db.GroupWorkers on w.ID equals gw.WorkerId
+                    join g in db.Groups on gw.GroupId equals g.ID
+                    orderby w.LastName, w.FirstMidName
+                    select new {FullName = w.FirstMidName + " " + w.LastName, w.IsSuspend, g.GroupName}
+                ).ToList();
             return Json(workers.ToDataSourceResult(request));
         }
 
@@ -74,7 +74,11 @@ namespace AssistantTrainingCore.Controllers
                 ID = worker.ID,
                 Tag = worker.Tag,
                 IsSuspend = worker.IsSuspend,
-                PostingGroups = new PostingGroup() { GroupIDs = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.GroupId.ToString()).ToArray() },
+                PostingGroups = new PostingGroup()
+                {
+                    GroupIDs = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID))
+                        .Select(x => x.GroupId.ToString()).ToArray()
+                },
                 SelectedGroups = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.Group).ToList()
             };
 
@@ -82,6 +86,7 @@ namespace AssistantTrainingCore.Controllers
             {
                 return NotFound();
             }
+
             return View(workerGroup);
         }
 
@@ -90,10 +95,8 @@ namespace AssistantTrainingCore.Controllers
         {
             var workerGroup = new WorkerViewModel();
             var groups = workerRepository.GetAllGroups();
-
             workerGroup.AvailableGroups = groups;
-
-            workerGroup.CheckBoxGroupValue = new string[] { "" };
+            workerGroup.CheckBoxGroupValue = new string[] {""};
 
             workerGroup.ItemsList = groups.Select(x => new InputGroupItemModel
             {
@@ -102,43 +105,9 @@ namespace AssistantTrainingCore.Controllers
                 Enabled = true,
                 Encoded = false,
                 CssClass = "test",
-                HtmlAttributes = new Dictionary<string, object>() { { "data-custom", "custom" } }
+                HtmlAttributes = new Dictionary<string, object>() {{"data-custom", "custom"}}
             }).ToList<IInputGroupItem>();
-
-            //var itemsList = new List<IInputGroupItem>()
-            //{
-            //    new InputGroupItemModel()
-            //    {
-            //        Label = "Green",
-            //        Enabled = true,
-            //        CssClass = "green",
-            //        Encoded = false,
-            //        Value = "one",
-            //        HtmlAttributes = new Dictionary<string,object>() { { "data-custom", "custom" } }
-            //    },
-            //     new InputGroupItemModel()
-            //    {
-            //        Label = "Blue",
-            //        Enabled = true,
-            //        Encoded = false,
-            //        CssClass = "blue",
-            //        Value = "two"
-            //    },
-            //      new InputGroupItemModel()
-            //    {
-            //        Label = "Red",
-            //        Enabled = true,
-            //        Encoded = false,
-            //        CssClass = "red",
-            //        Value = "three",
-            //        HtmlAttributes = new Dictionary<string,object>() { { "data-custom", "custom" } }
-            //    }
-            //};
-
-            //workerGroup.ItemsList = itemsList;
-
-            //workerGroup.CheckBoxGroupValue = new string[] { "two" };
-
+            
             return View(workerGroup);
         }
 
@@ -148,6 +117,11 @@ namespace AssistantTrainingCore.Controllers
         [HttpPost]
         public ActionResult Create(WorkerViewModel workerGroup)
         {
+            if (workerGroup == null || string.IsNullOrWhiteSpace(workerGroup.LastName))
+            {
+                return BadRequest();
+            }
+
             var worker = new Worker
             {
                 TimeOfCreation = DateTime.Now,
@@ -160,9 +134,9 @@ namespace AssistantTrainingCore.Controllers
             db.Workers.Add(worker);
             db.SaveChanges();
 
-            if (workerGroup.PostingGroups != null && workerGroup.PostingGroups.GroupIDs != null && workerGroup.PostingGroups.GroupIDs.Count() > 0)
+            if (workerGroup.CheckBoxGroupValue != null && workerGroup.CheckBoxGroupValue.Length > 0)
             {
-                foreach (var item in workerGroup.PostingGroups.GroupIDs)
+                foreach (var item in workerGroup.CheckBoxGroupValue)
                 {
                     var groupInstructions = new GroupWorker()
                     {
@@ -188,6 +162,12 @@ namespace AssistantTrainingCore.Controllers
             }
 
             var worker = db.Workers.Find(id);
+
+            if (worker == null)
+            {
+                return NotFound();
+            }
+
             var groups = workerRepository.GetAllGroups();
 
             var workerGroup = new WorkerViewModel
@@ -198,14 +178,27 @@ namespace AssistantTrainingCore.Controllers
                 ID = worker.ID,
                 Tag = worker.Tag,
                 IsSuspend = worker.IsSuspend,
-                PostingGroups = new PostingGroup() { GroupIDs = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.GroupId.ToString()).ToArray() },
+                PostingGroups = new PostingGroup()
+                {
+                    GroupIDs = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID))
+                        .Select(x => x.GroupId.ToString()).ToArray()
+                },
                 SelectedGroups = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID)).Select(x => x.Group).ToList()
             };
 
-            if (worker == null)
+            workerGroup.ItemsList = groups.Select(x => new InputGroupItemModel
             {
-                return NotFound();
-            }
+                Value = x.ID.ToString(),
+                Label = x.GroupName,
+                Enabled = true,
+                Encoded = false,
+                CssClass = "test",
+                HtmlAttributes = new Dictionary<string, object>() {{"data-custom", "custom"}}
+            }).ToList<IInputGroupItem>();
+
+            workerGroup.CheckBoxGroupValue = db.GroupWorkers.Where(x => x.WorkerId.Equals(worker.ID))
+                .Select(x => x.Group.ID.ToString()).ToArray();
+
             return View(workerGroup);
         }
 
@@ -216,15 +209,17 @@ namespace AssistantTrainingCore.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(WorkerViewModel workerGroup)
         {
-            if (ModelState.IsValid)
+            if (workerGroup.ID > 0)
             {
-                var worker = new Worker();
-                worker.ID = workerGroup.ID;
-                worker.LastName = workerGroup.LastName;
-                worker.FirstMidName = workerGroup.FirstMidName;
-                worker.Tag = workerGroup.Tag;
-                worker.TimeOfModification = DateTime.Now;
-                worker.IsSuspend = workerGroup.IsSuspend;
+                var worker = new Worker
+                {
+                    ID = workerGroup.ID,
+                    LastName = workerGroup.LastName,
+                    FirstMidName = workerGroup.FirstMidName,
+                    Tag = workerGroup.Tag,
+                    TimeOfModification = DateTime.Now,
+                    IsSuspend = workerGroup.IsSuspend
+                };
 
                 db.Workers.Attach(worker);
                 db.Entry(worker).Property(X => X.FirstMidName).IsModified = true;
@@ -233,13 +228,13 @@ namespace AssistantTrainingCore.Controllers
                 db.Entry(worker).Property(X => X.TimeOfModification).IsModified = true;
                 db.Entry(worker).Property(X => X.IsSuspend).IsModified = true;
 
-                if (workerGroup.PostingGroups != null && workerGroup.PostingGroups.GroupIDs != null && workerGroup.PostingGroups.GroupIDs.Count() > 0)
+                if (workerGroup.CheckBoxGroupValue != null && workerGroup.CheckBoxGroupValue.Any())
                 {
                     var wGroups = db.GroupWorkers.Where(w => w.WorkerId == workerGroup.ID).ToList();
 
-                    foreach (var item in workerGroup.PostingGroups.GroupIDs)
+                    foreach (var item in workerGroup.CheckBoxGroupValue)
                     {
-                        if ((wGroups.Where(x => x.WorkerId.Equals(workerGroup.ID) && x.GroupId.Equals(Int32.Parse(item))).FirstOrDefault() == null) || wGroups.Count() == 0)
+                        if ((wGroups.FirstOrDefault(x => x.WorkerId.Equals(workerGroup.ID) && x.GroupId.Equals(int.Parse(item))) == null) || !wGroups.Any())
                         {
                             var groupInstructions = new GroupWorker()
                             {
@@ -252,9 +247,10 @@ namespace AssistantTrainingCore.Controllers
                             db.SaveChanges();
                         }
                     }
+
                     foreach (var item in wGroups)
                     {
-                        if (!workerGroup.PostingGroups.GroupIDs.Contains(item.GroupId.ToString()))
+                        if (!workerGroup.CheckBoxGroupValue.Contains(item.GroupId.ToString()))
                         {
                             db.GroupWorkers.Remove(item);
                             db.SaveChanges();
@@ -271,12 +267,14 @@ namespace AssistantTrainingCore.Controllers
                     {
                         db.GroupWorkers.Remove(g);
                     }
+
                     db.SaveChanges();
                 }
 
                 db.SaveChanges();
-                return RedirectToAction("Index", "Workers", new { area = "" });
+                return RedirectToAction("Index", "Workers", new {area = ""});
             }
+
             return View(workerGroup);
         }
 
@@ -287,11 +285,13 @@ namespace AssistantTrainingCore.Controllers
             {
                 return BadRequest();
             }
+
             var worker = db.Workers.Find(id);
             if (worker == null)
             {
                 return NotFound();
             }
+
             return View(worker);
         }
 
@@ -311,12 +311,15 @@ namespace AssistantTrainingCore.Controllers
             //var workers = db.Workers.Select(w=>new { FullName = w.FirstMidName + " " + w.LastName, IsSuspend = w.IsSuspend}).ToList();
 
             var workers =
-             (from w in db.Workers
-              join gw in db.GroupWorkers on w.ID equals gw.WorkerId
-              join g in db.Groups on gw.GroupId equals g.ID
-              orderby w.LastName, w.FirstMidName
-              select new { FullName = w.FirstMidName + " " + w.LastName, IsSuspend = w.IsSuspend, GroupName = g.GroupName }
-              ).ToList();
+                (from w in db.Workers
+                    join gw in db.GroupWorkers on w.ID equals gw.WorkerId
+                    join g in db.Groups on gw.GroupId equals g.ID
+                    orderby w.LastName, w.FirstMidName
+                    select new
+                    {
+                        FullName = w.FirstMidName + " " + w.LastName, IsSuspend = w.IsSuspend, GroupName = g.GroupName
+                    }
+                ).ToList();
 
             try
             {
@@ -358,7 +361,8 @@ namespace AssistantTrainingCore.Controllers
                 workerGroup.LastName = item.LastName;
                 workerGroup.FullName = item.LastName + " " + item.FirstMidName;
                 workerGroup.Tag = item.Tag;
-                workerGroup.SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.GroupId.ToString()).ToArray();
+                workerGroup.SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID))
+                    .Select(x => x.GroupId.ToString()).ToArray();
                 workerGroup.WorkerGroups = groups;
                 workerGroup.Items = groups.Select(x => new SelectListItem
                 {
@@ -368,7 +372,9 @@ namespace AssistantTrainingCore.Controllers
 
                 lstWorkerGroups.Add(workerGroup);
             }
-            return View("Index", lstWorkerGroups.Where(x => x.FullName.ToUpper().Contains(srchtermWorkerByWorker.ToUpper())));
+
+            return View("Index",
+                lstWorkerGroups.Where(x => x.FullName.ToUpper().Contains(srchtermWorkerByWorker.ToUpper())));
         }
 
         public ActionResult SearchByGroup(string srchtermWorkerByGroup)
@@ -382,15 +388,18 @@ namespace AssistantTrainingCore.Controllers
             {
                 var workerGroup = new WorkerGroupViewModel();
 
-                var lstGroups = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.Group.GroupName).ToList();
-                if (lstGroups.FirstOrDefault(stringToCheck => stringToCheck.ToUpper().Contains(srchtermWorkerByGroup.ToUpper())) != null)
+                var lstGroups = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.Group.GroupName)
+                    .ToList();
+                if (lstGroups.FirstOrDefault(stringToCheck =>
+                        stringToCheck.ToUpper().Contains(srchtermWorkerByGroup.ToUpper())) != null)
                 {
                     workerGroup.ID = item.ID;
                     workerGroup.FirstMidName = item.FirstMidName;
                     workerGroup.LastName = item.LastName;
                     workerGroup.FullName = item.LastName + " " + item.FirstMidName;
                     workerGroup.Tag = item.Tag;
-                    workerGroup.SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.GroupId.ToString()).ToArray();
+                    workerGroup.SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID))
+                        .Select(x => x.GroupId.ToString()).ToArray();
                     workerGroup.WorkerGroups = groups;
                     workerGroup.Items = groups.Select(x => new SelectListItem
                     {
@@ -401,6 +410,7 @@ namespace AssistantTrainingCore.Controllers
                     lstWorkerGroups.Add(workerGroup);
                 }
             }
+
             return View("Index", lstWorkerGroups);
         }
 
@@ -410,6 +420,7 @@ namespace AssistantTrainingCore.Controllers
             {
                 db.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
@@ -432,7 +443,8 @@ namespace AssistantTrainingCore.Controllers
                     LastName = item.LastName,
                     FullName = item.LastName + " " + item.FirstMidName,
                     Tag = item.Tag,
-                    SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID)).Select(x => x.GroupId.ToString()).ToArray(),
+                    SelectedIds = db.GroupWorkers.Where(x => x.WorkerId.Equals(item.ID))
+                        .Select(x => x.GroupId.ToString()).ToArray(),
                     WorkerGroups = groups,
                     Items = groups.Select(x => new SelectListItem
                     {
@@ -443,7 +455,9 @@ namespace AssistantTrainingCore.Controllers
                     IsSuspendDesc = item.IsSuspend == true ? "Tak" : "Nie"
                 };
 
-                workerGroup.GrupsInString = String.Join("\n", workerGroup.Items.Where(x => workerGroup.SelectedIds.Contains(x.Value)).Select(x => x.Text).ToArray());
+                workerGroup.GrupsInString = String.Join("\n",
+                    workerGroup.Items.Where(x => workerGroup.SelectedIds.Contains(x.Value)).Select(x => x.Text)
+                        .ToArray());
 
                 lstWorkerGroups.Add(workerGroup);
             }

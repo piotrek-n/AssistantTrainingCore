@@ -47,14 +47,13 @@
                             .Name("CheckBoxGroupValue")
                             .Value(Model?.CheckBoxGroupValue)
                             .Items(i =>
-                            {
-                                foreach (var l in Model.ItemsList)
                                 {
-                                    i.Add().Label(l.Label).Value(l.Value);
-                                }
-                            }
-                            )
-                            )
+                                    foreach (var l in Model.ItemsList)
+                                    {
+                                        i.Add().Label(l.Label).Value(l.Value);
+                                    }
+                                })
+                        )
                     </div>
                 </div>
 
