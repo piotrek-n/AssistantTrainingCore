@@ -2,8 +2,13 @@
 using AssistantTrainingCore.Data;
 using AssistantTrainingCore.Models;
 using AssistantTrainingCore.Repositories;
+using AssistantTrainingCore.Resources;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,8 +56,26 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
     services.AddTransient<IWorkerRepository, WorkerRepository>();
 
+    services.Configure<RequestLocalizationOptions>(
+    options =>
+    {
+
+        options.DefaultRequestCulture = new RequestCulture(culture: "pl-PL", uiCulture: "pl-PL");
+        options.SupportedCultures = GetSupportedCultures();
+        options.SupportedUICultures = GetSupportedCultures();
+    });
+
     builder.Services.AddControllersWithViews()
-                    .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver());
+                    .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver())
+                    .AddViewLocalization()
+                   .AddDataAnnotationsLocalization(options =>
+                   {
+                       options.DataAnnotationLocalizerProvider = (type, factory) =>
+                       {
+                           var assemblyName = new AssemblyName(typeof(SharedResource).GetTypeInfo().Assembly.FullName);
+                           return factory.Create("SharedResource", assemblyName.Name);
+                       };
+                   });
     builder.Services.AddKendo();
 };
 void ConfigureMiddleware(IApplicationBuilder app, IServiceProvider services, IWebHostEnvironment environment)
@@ -70,6 +93,21 @@ void ConfigureMiddleware(IApplicationBuilder app, IServiceProvider services, IWe
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+
+    var requestLocalizationOptions = new RequestLocalizationOptions
+    {
+        DefaultRequestCulture = new RequestCulture("pl-PL"),
+        SupportedCultures = GetSupportedCultures(),
+        SupportedUICultures = GetSupportedCultures(),
+    };
+
+    requestLocalizationOptions.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider());
+    app.UseRequestLocalization(requestLocalizationOptions);
+
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllerRoute(name: "default", pattern: "{culture=pl-PL}/{controller=Home}/{action=Index}/{id?}");
+    });
 };
 void ConfigureEndpoints(IEndpointRouteBuilder app, IServiceProvider services)
 {
@@ -77,3 +115,13 @@ void ConfigureEndpoints(IEndpointRouteBuilder app, IServiceProvider services)
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
 };
+
+static List<CultureInfo> GetSupportedCultures()
+{
+    return new List<CultureInfo>
+            {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("pl-PL"),
+
+            };
+}

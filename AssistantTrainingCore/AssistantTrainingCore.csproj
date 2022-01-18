@@ -31,6 +31,16 @@
     <None Remove="Templates\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Remove="Resources\SharedResource.en-US.resx" />
+    <EmbeddedResource Remove="Resources\SharedResource.pl-PL.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\SharedResource.en-US.resx" />
+    <None Include="Resources\SharedResource.pl-PL.resx" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties UseCdnSupport="" /></VisualStudio></ProjectExtensions>
 
 </Project>

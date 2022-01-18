@@ -258,21 +258,20 @@ namespace AssistantTrainingCore.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(InstructionIndexData instructionGroupViewModel)
         {
-            if (ModelState.IsValid || instructionGroupViewModel.SelectedIds == null)
+            if (ModelState["Number"].Errors.Count == 0 && ModelState["Name"].Errors.Count == 0)
             {
-                //db.InstructionGroupViewModels.Add(instructionGroupViewModel);
-                Instruction instruction = new Instruction
+                var currentUserId = userManager.GetUserId(User);
+                var instruction = new Instruction
                 {
                     Number = instructionGroupViewModel.Number,
                     Name = instructionGroupViewModel.Name,
                     Version = instructionGroupViewModel.Version,
                     Reminder = instructionGroupViewModel.Reminder,
                     TimeOfCreation = DateTime.Now,
-                    TimeOfModification = DateTime.Now
-                };
-                var currentUserId = userManager.GetUserId(User); // User.Identity.GetUserId();
-                instruction.CreatedByUserId = currentUserId;
-                //instruction.GroupId = Int32.Parse(instructionGroupViewModel.SelectedId);
+                    TimeOfModification = DateTime.Now,
+                    CreatedByUserId = currentUserId
+                 };
+
                 db.Instructions.Add(instruction);
                 db.SaveChanges();
 
@@ -284,11 +283,13 @@ namespace AssistantTrainingCore.Controllers
                     db.TrainingNames.Add(tn);
                     db.SaveChanges();
 
-                    var tg = new TrainingGroup();
-                    tg.TrainingNameId = tn.ID;
-                    tg.InstructionId = instruction.ID;
-                    tg.TimeOfCreation = DateTime.Now;
-                    tg.TimeOfModification = DateTime.Now;
+                    var tg = new TrainingGroup
+                    {
+                        TrainingNameId = tn.ID,
+                        InstructionId = instruction.ID,
+                        TimeOfCreation = DateTime.Now,
+                        TimeOfModification = DateTime.Now
+                    };
 
                     db.TrainingGroups.Add(tg);
                     db.SaveChanges();
@@ -312,7 +313,7 @@ namespace AssistantTrainingCore.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(instructionGroupViewModel);
+            return RedirectToAction("Create");
         }
 
         // GET: Instructions/Edit/5
@@ -421,8 +422,7 @@ namespace AssistantTrainingCore.Controllers
 
                 return RedirectToAction("Index");
             }
-
-            return View(instructionGroupViewModel);
+            return RedirectToAction("Edit");
         }
 
         // GET: Instructions/Delete/5
@@ -508,30 +508,36 @@ namespace AssistantTrainingCore.Controllers
             {
                 return BadRequest();
             }
-            var newInstruction = new Instruction();
-            newInstruction.Name = instruction.Name;
-            newInstruction.Version = int.Parse(version);
-            newInstruction.TimeOfCreation = DateTime.Now;
-            newInstruction.TimeOfModification = DateTime.Now;
-            newInstruction.Number = instruction.Number;
-            var currentUserId = userManager.GetUserId(User); //User.Identity.GetUserId();
+            var newInstruction = new Instruction
+            {
+                Name = instruction.Name,
+                Version = int.Parse(version),
+                TimeOfCreation = DateTime.Now,
+                TimeOfModification = DateTime.Now,
+                Number = instruction.Number
+            };
+            var currentUserId = userManager.GetUserId(User); 
             newInstruction.CreatedByUserId = currentUserId;
             db.Instructions.Add(newInstruction);
             db.SaveChanges();
 
-            if (!string.IsNullOrEmpty(training))
+            if (!string.IsNullOrEmpty(training) && training != "undefined")
             {
-                var tn = new TrainingName();
-                tn.Name = string.Empty;
-                tn.Number = training;
+                var tn = new TrainingName
+                {
+                    Name = string.Empty,
+                    Number = training
+                };
                 db.TrainingNames.Add(tn);
                 db.SaveChanges();
 
-                var tg = new TrainingGroup();
-                tg.TrainingNameId = tn.ID;
-                tg.InstructionId = newInstruction.ID;
-                tg.TimeOfCreation = DateTime.Now;
-                tg.TimeOfModification = DateTime.Now;
+                var tg = new TrainingGroup
+                {
+                    TrainingNameId = tn.ID,
+                    InstructionId = newInstruction.ID,
+                    TimeOfCreation = DateTime.Now,
+                    TimeOfModification = DateTime.Now
+                };
 
                 db.TrainingGroups.Add(tg);
                 db.SaveChanges();

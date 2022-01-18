@@ -1,0 +1,116 @@
+﻿@model AssistantTrainingCore.ViewModel.InstructionIndexData
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-center ">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new {id = "creasteinstructionform"}))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <h4> Create New Instruction</h4>
+                <hr/>
+                @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+
+                <div class="form-group">
+                    <label asp-for="Number" class="control-label col-md-2"></label>
+                    <div class="col-md-10">
+                        <input asp-for="Number" class="form-control"/>
+                        <span asp-validation-for="Number" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                    <label asp-for="Name" class="control-label col-md-2"></label>
+                    <div class="col-md-10">
+                        <input asp-for="Name" class="form-control"/>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Version, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Version, new {htmlAttributes = new {@class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.Version, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                    Wersja Papierowa
+
+                    <div class="col-md-10">
+                        @(Html.Kendo().CheckBoxFor(m => m.Reminder))
+                    </div>
+                </div>
+                <div style="display:inline">
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.ItemsList, htmlAttributes: new {@class = "control-label col-md-12"})
+                        <div class="col-md-10">
+                            @(Html.Kendo().CheckBoxGroup()
+                                .Name("CheckBoxGroupValue")
+                                .Value(Model.CheckBoxGroupValue)
+                                .Items(i =>
+                                {
+                                    foreach (var l in Model.ItemsList)
+                                    {
+                                        i.Add().Label("<span style=\"border-bottom-width: 1px solid #000;\">" + l.Label /* +"<a style=\"float:right;\" href=\"#\" onClick=\"showInstructionWorkers('" + l.Label + "')\"> Pracownicy </a><span>"*/).Encoded(false).Enabled(true).Value(l.Value);
+                                    }
+                                })
+                                )
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10" style="color:red;">
+                        @**Info.*@
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        @Html.ActionLink("Back to List", "Index")
+                        <input type="submit" value="Create" class="btn btn-default"/>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    jQuery(document).ready(function () {
+
+        $(':checkbox').change(function () {
+            $(this).blur();
+        })
+
+    });
+</script>
+
+<style>
+</style>
+
+<script>
+    var oldPageSize = 0;
+
+    function onChange(e) {
+        var selectedIds = Object.values(this.selectedKeyNames()).filter(function (item) {
+            return (parseInt(item) == item);
+        }).join(", ");
+    };
+
+    $('#creasteinstructionform').submit(function () {
+
+        return true;
+    });
+</script>
+
+<style>
+</style>
