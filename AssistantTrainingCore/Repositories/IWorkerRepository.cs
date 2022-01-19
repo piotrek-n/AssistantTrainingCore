@@ -8,7 +8,7 @@ namespace AssistantTrainingCore.Repositories
     {
         List<Group> GetAllGroups();
         List<Group> GetGroupsById(List<int> ids);
-        IQueryable<TrainingGroup> GetTrainings();
+        List<TrainingGroup> GetTrainings();
         IQueryable<TrainingWorkersGridData> GetWorkersByTraining();
         IQueryable<TrainingWorkersGridData> GetWorkersByTraining(string term, string type);
     }

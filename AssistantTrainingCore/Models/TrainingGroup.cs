@@ -18,7 +18,7 @@ namespace AssistantTrainingCore.Models
         [ForeignKey("TrainingNameId")]
         public virtual TrainingName TrainingName { get; set; }
 
-        public virtual ICollection<TrainingName> TrainingNames { get; set; }
+        //public virtual ICollection<TrainingName> TrainingNames { get; set; }
 
         //public virtual ICollection<Instruction> Instructions { get; set; }
     }

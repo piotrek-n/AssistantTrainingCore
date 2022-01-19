@@ -111,5 +111,10 @@ namespace AssistantTrainingCore.Controllers
 
             return View();
         }
+
+        public IActionResult Create()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -75,7 +75,8 @@ namespace AssistantTrainingCore.Controllers
 
         public JsonResult GetTrainingNamesByQuery(string query)
         {
-            return Json((from i in db.TrainingNames where i.Number.Contains(query) select i.Number).Distinct().ToList());
+            return Json((from i in db.TrainingNames where i.Number.Contains(query) select i.Number).Distinct()
+                .ToList());
         }
 
         public ActionResult Search(string instruction, string training)
@@ -96,7 +97,7 @@ namespace AssistantTrainingCore.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            return View(workerRepository.GetTrainings());
         }
 
         //[AjaxChildActionOnly]
@@ -130,8 +131,6 @@ namespace AssistantTrainingCore.Controllers
         //[AjaxChildActionOnly]
         public PartialViewResult GetGridByTraining(string term)
         {
-            
-
             IEnumerable<TrainingGroup> items;
             if (String.IsNullOrEmpty(term))
             {
@@ -139,7 +138,8 @@ namespace AssistantTrainingCore.Controllers
             }
             else
             {
-                items = workerRepository.GetTrainings().Where(x => x.TrainingName.Number.ToUpper().Contains(term.ToUpper())).AsEnumerable();
+                items = workerRepository.GetTrainings()
+                    .Where(x => x.TrainingName.Number.ToUpper().Contains(term.ToUpper())).AsEnumerable();
             }
 
             return PartialView(GRID_PARTIAL_PATH, items);
@@ -160,7 +160,7 @@ namespace AssistantTrainingCore.Controllers
         //[HttpGet]
         //public ActionResult GridPager(int? page)
         //{
-            
+
         //    var items = workerRepository.GetTrainings().OrderBy(p => 0);
         //    var grid = this.gridMvcHelper.GetAjaxGrid(items, page);
         //    object jsonData = this.gridMvcHelper.GetGridJsonData(grid, GRID_PARTIAL_PATH, this);
@@ -279,6 +279,7 @@ namespace AssistantTrainingCore.Controllers
                         //db.SaveChanges();
                     }
                 }
+
                 var tn = db.TrainingNames.Where(x => x.ID.Equals(id)).ToList();
 
                 if (tn != null && tn.Count > 0)
@@ -303,7 +304,8 @@ namespace AssistantTrainingCore.Controllers
 
         public ActionResult DeleteWorkerTraining(int TrainingNameID, int WorkerID)
         {
-            var tr = db.Trainings.Where(x => x.TrainingNameId.Equals(TrainingNameID) && x.WorkerId.Equals(WorkerID)).ToList();
+            var tr = db.Trainings.Where(x => x.TrainingNameId.Equals(TrainingNameID) && x.WorkerId.Equals(WorkerID))
+                .ToList();
 
             if (tr != null && tr.Count > 0)
             {
@@ -348,85 +350,103 @@ namespace AssistantTrainingCore.Controllers
         //    return RedirectToAction("Index");
         //}
 
-        //public ActionResult InstructionsJsonAction(string q, string t)
-        //{
-        //    Session["term"] = t;
-        //    List<InstructionsJson> lstInstructions = new List<InstructionsJson>();
-        //    if (t.Equals("true"))
-        //    {
-        //        lstInstructions = (
-        //         from i in db.Instructions
-        //         group i by i.Number into groupedI
-        //         let maxVersion = groupedI.Max(gt => gt.Version)
-        //         select new
-        //         {
-        //             Key = groupedI.Key,
-        //             ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID,
-        //             Number = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Number,
-        //             Name = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Name,
-        //             Version = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Version,
-        //             Reminder = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Reminder
-        //         }
-        //       ).Select(x => new InstructionsJson { id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version })
-        //       .Where(x => x.text.ToUpper().Contains(q.ToUpper()))
-        //       .ToList();
-        //    }
-        //    else
-        //    {
-        //        var items = (
-        //                  from i in db.Instructions
-        //                  group i by i.Number into groupedI
-        //                  let maxVersion = groupedI.Max(gt => gt.Version)
-        //                  select new
-        //                  {
-        //                      Key = groupedI.Key,
-        //                      ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
-        //                  }
-        //              ).Select(x => x.ID).ToList();
+        public ActionResult InstructionsJsonAction(string q, string t)
+        {
+            //Session["term"] = t;
+            var lstInstructions = new List<InstructionsJson>();
+            if (t.Equals("true"))
+            {
+                lstInstructions = (
+                        from i in db.Instructions
+                        group i by i.Number
+                        into groupedI
+                        let maxVersion = groupedI.Max(gt => gt.Version)
+                        select new
+                        {
+                            Key = groupedI.Key,
+                            ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID,
+                            Number = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Number,
+                            Name = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Name,
+                            Version = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Version,
+                            Reminder = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Reminder
+                        }
+                    ).Select(x => new InstructionsJson
+                        {id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version})
+                    .Where(x => x.text.ToUpper().Contains(q.ToUpper()))
+                    .ToList();
+            }
+            else
+            {
+                // var items = (
+                //     from i in db.Instructions
+                //     group i by i.Number
+                //     into groupedI
+                //     let maxVersion = groupedI.Max(gt => gt.Version)
+                //     select new
+                //     {
+                //         Key = groupedI.Key,
+                //         ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
+                //     }
+                // ).Select(x => x.ID).ToList();
+                
+                var items = db.Instructions.GroupBy(c => c.Number)
+                    .Select(g => new
+                    {
+                        Key = g.Key,
+                        ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
+                        maxVersion = g.Max(x => x.Version)
+                    }).Select(x => x.ID).ToList();
 
-        //        lstInstructions = (from i in db.Instructions
-        //                           join tg in db.TrainingGroups on new { ID = i.ID } equals new { ID = tg.InstructionId } into tg_join
-        //                           from tg in tg_join.DefaultIfEmpty()
-        //                           where
-        //                             i.Number.ToUpper().Contains(q.ToUpper())
-        //                             && items.Contains(i.ID)
-        //                             && tg.InstructionId == null
-        //                           select new InstructionsJson { id = i.ID.ToString(), text = i.Number, name = i.Name, version = i.Version, reminder = i.Reminder }).ToList();
-        //        //**FIX
-        //        //If a new worker was added.
-        //        if (lstInstructions.Count() == 0)
-        //        {
-        //            lstInstructions =
-        //           (from w in db.Workers
-        //            join wg in db.GroupWorkers on w.ID equals wg.WorkerId
-        //            join gi in db.InstructionGroups on wg.GroupId equals gi.GroupId
-        //            join i in db.Instructions on gi.InstructionId equals i.ID
-        //            join tt in db.Trainings
-        //                  on new { InstructionId = i.ID, WorkerId = wg.WorkerId }
-        //              equals new { tt.InstructionId, tt.WorkerId } into t_join
-        //            from tt in t_join.DefaultIfEmpty()
-        //            where
-        //              w.IsSuspend == false
-        //              && items.Contains(i.ID)
-        //            select new InstructionsJson { id = i.ID.ToString(), text = i.Number, name = i.Name, version = i.Version, reminder = i.Reminder }).Distinct().ToList();
-        //        }
-        //    }
-        //    var countInstructions = lstInstructions.Count();
+                lstInstructions = (from i in db.Instructions
+                    join tg in db.TrainingGroups on new {ID = i.ID} equals new {ID = tg.InstructionId} into tg_join
+                    from tg in tg_join.DefaultIfEmpty()
+                    where
+                        i.Number.ToUpper().Contains(q.ToUpper())
+                        && items.Contains(i.ID)
+                        && tg.InstructionId == null
+                    select new InstructionsJson
+                    {
+                        id = i.ID.ToString(), text = i.Number, name = i.Name, version = i.Version, reminder = i.Reminder
+                    }).ToList();
+                //**FIX
+                //If a new worker was added.
+                if (lstInstructions.Count() == 0)
+                {
+                    lstInstructions =
+                        (from w in db.Workers
+                            join wg in db.GroupWorkers on w.ID equals wg.WorkerId
+                            join gi in db.InstructionGroups on wg.GroupId equals gi.GroupId
+                            join i in db.Instructions on gi.InstructionId equals i.ID
+                            join tt in db.Trainings
+                                on new {InstructionId = i.ID, WorkerId = wg.WorkerId}
+                                equals new {tt.InstructionId, tt.WorkerId} into t_join
+                            from tt in t_join.DefaultIfEmpty()
+                            where
+                                w.IsSuspend == false
+                                && items.Contains(i.ID)
+                            select new InstructionsJson
+                            {
+                                id = i.ID.ToString(), text = i.Number, name = i.Name, version = i.Version,
+                                reminder = i.Reminder
+                            }).Distinct().ToList();
+                }
+            }
 
-        //    InstructionsJsonDTO result = new InstructionsJsonDTO();
-        //    if (countInstructions > 0)
-        //    {
-        //        result.total_count = countInstructions.ToString();
-        //        result.items = lstInstructions;
-        //    }
+            var countInstructions = lstInstructions.Count();
 
-        //    string json = JsonConvert.SerializeObject(result);
+            InstructionsJsonDTO result = new InstructionsJsonDTO();
+            if (countInstructions > 0)
+            {
+                result.total_count = countInstructions.ToString();
+                result.items = lstInstructions;
+            }
 
-        //    JavaScriptSerializer j = new JavaScriptSerializer();
-        //    object a = j.Deserialize(json, typeof(object));
+            //var json = JsonConvert.SerializeObject(result);
+            // JavaScriptSerializer j = new JavaScriptSerializer();
+            // object a = j.Deserialize(json, typeof(object));
 
-        //    return Json(a);
-        //}
+            return Json(result);
+        }
 
         [HttpPost]
         public ActionResult AddNewTrainings(string selectedValues, string trainingNumber)
@@ -468,21 +488,21 @@ namespace AssistantTrainingCore.Controllers
                 //inner join dbo.InstructionGroups ig on ig.[GroupId] = gw.[GroupId]
 
                 var instructionWorkerList =
-                   (from w in db.Workers
-                    join gw in db.GroupWorkers on w.ID equals gw.WorkerId
-                    join ig in db.InstructionGroups on gw.GroupId equals ig.GroupId
-                    join t in db.Trainings
-                          on new { WorkerId = w.ID, ID = ig.Instruction.ID }
-                      equals new { t.WorkerId, ID = t.InstructionId } into t_join
-                    from t in t_join.DefaultIfEmpty()
-                    where
-                    w.IsSuspend == false && intInstructionIDs.Contains(ig.Instruction.ID) && (int?)t.ID == null
-                    select new
-                    {
-                        WorkerID = w.ID,
-                        InstructionID = ig.Instruction.ID
-                    }
-                  ).ToList();
+                    (from w in db.Workers
+                        join gw in db.GroupWorkers on w.ID equals gw.WorkerId
+                        join ig in db.InstructionGroups on gw.GroupId equals ig.GroupId
+                        join t in db.Trainings
+                            on new {WorkerId = w.ID, ID = ig.Instruction.ID}
+                            equals new {t.WorkerId, ID = t.InstructionId} into t_join
+                        from t in t_join.DefaultIfEmpty()
+                        where
+                            w.IsSuspend == false && intInstructionIDs.Contains(ig.Instruction.ID) && (int?) t.ID == null
+                        select new
+                        {
+                            WorkerID = w.ID,
+                            InstructionID = ig.Instruction.ID
+                        }
+                    ).ToList();
 
                 if (instructionWorkerList != null)
                 {

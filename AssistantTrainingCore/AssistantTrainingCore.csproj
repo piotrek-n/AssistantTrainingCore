@@ -29,6 +29,7 @@
     <Content Remove="Templates\**" />
     <EmbeddedResource Remove="Templates\**" />
     <None Remove="Templates\**" />
+    <None Include="wwwroot\js\training.js" />
   </ItemGroup>
 
   <ItemGroup>
