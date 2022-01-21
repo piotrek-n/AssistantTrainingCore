@@ -96,8 +96,8 @@ namespace AssistantTrainingCore.Repositories
                 lst = (from t in db.Trainings
                     orderby t.Worker.LastName + "  " + t.Worker.FirstMidName
                     where
-                        t.TrainingName.ID == itemID && t.DateOfTraining == new DateTime(1900, 1, 1)
-                    select new TrainingWorkersGridData
+                        t.TrainingName.ID == itemID && t.DateOfTraining.ToString().Equals("1900-01-01 00:00:00.000")
+                       select new TrainingWorkersGridData
                     {
                         WorkerLastName = t.Worker.LastName,
                         WorkerFirstMidName = t.Worker.FirstMidName,

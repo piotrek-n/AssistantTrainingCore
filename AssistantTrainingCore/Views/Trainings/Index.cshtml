@@ -99,7 +99,6 @@ else
 <script>
         var CountIt = 0 
         function GetCountIt() { 
-            debugger;
             var page = $("#trainingGroup").data("kendoGrid").dataSource.page();
             var pageSize = $("#trainingGroup").data("kendoGrid").dataSource.pageSize();
             CountIt++;
@@ -113,7 +112,7 @@ else
         }
 </script>
 
-<div >
+<div class=" " >
 
             @(Html.Kendo().Grid<AssistantTrainingCore.Models.TrainingGroup>(Model)
                 .Name("trainingGroup")
@@ -130,7 +129,7 @@ else
                     columns.Bound(c => c.Instruction.Version).Title("Version").Filterable(true).Width(110);
                     columns.Bound(c => c.TrainingName.Number)
                         .Title("Akcja")
-                        .ClientTemplate(" <a href='/Instructions/Details/#=ID#'>Details</a> # if (userAdminOrEngineer == true) { # <a href='/Instructions/Edit/#=ID#'>Edit</a> # } # # if (userAdmin == true) { # <a href='/Instructions/Delete/#=ID#'>Delete</a>  # } # ")
+                        .ClientTemplate(" <span> <a href='#=ID#' onclick='return getGridUntrained(#=ID#);' >Untrained</a> </span> <span> <a href='#=ID#' onclick='return getGridTrained(#=ID#);'>Trained</a> </span>  # if (userAdmin == true) { # <a href='/Trainings/Delete/#=ID#'>Delete</a>  # } # ")
                         .HtmlAttributes(new { style = "text-align: center;"})
                         .Width(100)
                         .Sortable(false)
@@ -145,110 +144,228 @@ else
                 )
                 .Navigatable()
                 .Sortable()
-                .Filterable())
-            
-    @* @( *@
-    @*     Html.Grid(Model).Named("TrainingGrid") *@
-    @*         .Columns(columns => *@
-    @*         { *@
-    @*             columns.Add() *@
-    @*                     .Encoded(false) *@
-    @*                     .Sanitized(false) *@
-    @*                     .SetWidth(40) *@
-    @*                     .RenderValueAs(f => index(f)); *@
-    @* *@
-    @*             columns.Add(f => f.TrainingName.Number).Titled("Training Number").SetWidth(110); *@
-    @*             columns.Add(f => f.Instruction.Number).Titled("Instruction Number").SetWidth(110); *@
-    @*             columns.Add(f => f.Instruction.Version).Titled("Version").SetWidth(110); *@
-    @*             //columns.Add(f => f.Instruction.Number).Titled("Instruction Number").SetWidth(110);  *@
-    @*             columns.Add() *@
-    @*                     .Encoded(false) *@
-    @*                     .Sanitized(false) *@
-    @*                     .SetWidth(30) *@
-    @*                     .RenderValueAs(f => Edit(f.TrainingNameId)); *@
-    @*         }) *@
-    @*         .Sortable() *@
-    @*         .WithPaging(50)) *@
-    
-    @* @helper Edit(int Id) *@
-    @* {           *@
-    @*          <span><a href="@Id" id="untrained">Untrained</a></span> *@
-    @*     @:|  <span><a href="@Id" id="trained">Trained</a></span> *@
-    @*             *@
-    @*     if (User.IsInRole("Administrator")) *@
-    @*     { *@
-    @*         @:| @Html.ActionLink("Delete", "DeleteTraining", new { id = Id }) *@
-    @*     } *@
-    @* } *@
-    @* *@
-    @* @helper index(AssistantTraining.Models.TrainingGroup item) *@
-    @* { *@
-    @* *@
-    @* object column=String.Empty; *@
-    @* object dir = String.Empty; *@
-    @* int index = 0; *@
-    @* *@
-    @* if (!String.IsNullOrEmpty(Request.QueryString["grid-column"])) *@
-    @* { *@
-    @*     column = Request.QueryString["grid-column"]; *@
-    @* *@
-    @*     if (!String.IsNullOrEmpty(Request.QueryString["grid-column"])) *@
-    @*     { *@
-    @*         dir = Request.QueryString["grid-dir"]; *@
-    @*     } *@
-    @* *@
-    @*     switch (column.ToString()) *@
-    @*     { *@
-    @*         case "Instruction.Version": *@
-    @* *@
-    @*             if (!String.IsNullOrEmpty(dir.ToString()) && dir.ToString().Equals("1")) *@
-    @*             { *@
-    @*                 index = Model.OrderByDescending(x => x.Instruction.Version).ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @*             } *@
-    @*             else *@
-    @*             { *@
-    @*                 index = Model.OrderBy(x => x.Instruction.Version).ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @*             } *@
-    @*             break; *@
-    @* *@
-    @*         case "TrainingName.Number": *@
-    @* *@
-    @*             if (!String.IsNullOrEmpty(dir.ToString()) && dir.ToString().Equals("1")) *@
-    @*             { *@
-    @*                 index = Model.OrderByDescending(x => x.TrainingName.Number).ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @*             } *@
-    @*             else *@
-    @*             { *@
-    @*                 index = Model.OrderBy(x => x.TrainingName.Number).ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @*             } *@
-    @* *@
-    @*             break; *@
-    @*         case "Instruction.Number": *@
-    @* *@
-    @*             if (!String.IsNullOrEmpty(dir.ToString()) && dir.ToString().Equals("1")) *@
-    @*             { *@
-    @*                 index = Model.OrderByDescending(x => x.Instruction.Number).ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @*             } *@
-    @*             else *@
-    @*             { *@
-    @*                 index = Model.OrderBy(x => x.Instruction.Number).ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @*             } *@
-    @* *@
-    @*             break; *@
-    @*         default: *@
-    @*             break; *@
-    @*     } *@
-    @* *@
-    @* } *@
-    @* else *@
-    @* { *@
-    @*     index = Model.ToList().FindIndex(x => x.Instruction.Number == item.Instruction.Number) + 1; *@
-    @* } *@
-    @*  @Html.Label(index.ToString()); *@
-    @* } *@
+                .Filterable())           
     
 </div>
 
+<a href="@Url.Action("Excel", "Training")" class="btn btn-default">
+    Export
+    <span class="glyphicon" aria-hidden="true"></span>
+</a>
+@* <button type="button" onclick="selectAll()" class="btn btn-default">Select All</button> *@
+@* <button type="button" onclick="unselectAll()" class="btn btn-default">Unselect All</button> *@
+
+@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.TrainingWorkersGridData>()
+            .Name("trainingWorkersGridData")
+            .ToolBar(t => t.Search())
+            .Columns(columns =>
+            {
+                columns.Select().Width(50);
+                columns.Bound("").ClientTemplate("#=GetCountIt()#").Title("Lp.").Width(50);
+                columns.Bound(c => c.WorkerID).Title("WorkerID").Hidden(true).Filterable(true).Width(110); /* hidden */
+                columns.Bound(c => c.TrainingNameId).Title("TrainingNameId").Hidden(true).Filterable(true).Width(50); /* hidden */
+                columns.Bound(c => c.WorkerFullName).Title("Nazwisko").Filterable(true).Width(30);
+                //
+                columns.Bound(p => p.WorkerFullName)
+                        .Title("Akcja")
+                        .ClientTemplate(" # if (userAdmin == true) { # <a href='Training/DeleteWorkerTraining?TrainingNameID=#=TrainingNameId#&WorkerID=#=WorkerID#'>Remove Training</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+    .Navigatable()
+            .Sortable()
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Model(model => model.Id(p => p.TrainingNameId))
+                .PageSize(20)
+                .Read(read => read.Action("PlayerStats_Read_Bound", "Trainings").Data("TrainingNameId"))
+            ).AutoBind(false)
+)
+
+<div class="row top10">
+
+</div>
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-2"></div>
+    <div class="col-md-2">
+        @if (User.IsInRole("Administrator"))
+        {
+            <input type="button" class="btn btn-info col-md-10" value="Remove Training" id="RemoveTrainingToWorkerWorkersGrid" />
+        }
+    </div>
+    <form id="myform">
+        <div class="col-md-2">
+            <span>
+                <input type="text" placeholder="Training number" disabled id="TrainingNumber" name="field1" class="form-control hidden" value="1234" required>
+            </span>
+        </div>
+@*        <div class="col-md-2">
+            <span id="sandbox-container">
+                <input type="text" placeholder="Date" id="TrainingDate" name="field2" class="form-control" required>
+            </span>
+        </div>*@
+
+          <div class="input-group mb-4">
+            <input class="form-control" type="text" placeholder="training date" id="TrainingDate">
+            <div class="input-group-append">
+              <span class="fa fa-calendar input-group-text" aria-hidden="true"></span>
+            </div>
+          </div>
+    </form>
+        <div class="col-md-2">
+            <input type="button" class="btn btn-info col-md-10" value="Complet Training" id="SaveTrainingWorkersGrid" />
+        </div>
+
+</div>
+
+<script>
+
+var trainingNameId = 0;
+var status = '';
+function TrainingNameId() {
+    return {
+        trainingNameId: trainingNameId,
+        term: status, 
+    }
+}
+
+function getGridUntrained(id){
+    trainingNameId = id;
+    status = 'untrained';
+    var grid = $("#trainingWorkersGridData").data("kendoGrid");
+    grid.dataSource.read();
+}
+
+function getGridTrained(id){
+    trainingNameId = id;
+    status = 'trained';
+    var grid = $("#trainingWorkersGridData").data("kendoGrid");
+    grid.dataSource.read();
+}
+
+function selectAll() {
+    $(':checkbox').prop('checked', true);
+}
+    
+
+function unselectAll() {
+    $(':checkbox').prop('checked', false);
+}
+
+</script>
+
+
+<script>
+    $("#TrainingDate").datepicker();
+</script>
+<script src="~/js/training.js"></script>
+
+
+@*<div class="row top10"></div>
+<a href="@Url.Action("Excel", "Training")" class="btn btn-default">
+    Export
+    <span class="glyphicon" aria-hidden="true"></span>
+</a>
+<button type="button" onclick="selectAll()" class="btn btn-default">Select All</button>
+<button type="button" onclick="unselectAll()" class="btn btn-default">Unselect All</button>
+@(
+    Html.Grid(Model).Named("TrainingWorkersGrid")
+        .Columns(columns =>
+        {
+            columns.Add()
+            .Encoded(false)
+            .Sanitized(false)
+            .SetWidth(30)
+            .RenderValueAs(f => index(f));
+
+            columns.Add(f => f.WorkerID, true);
+            columns.Add(f => f.TrainingNameId, true);
+            columns.Add(f => f.WorkerFullName).Titled("Nazwisko").Sortable(true).Filterable(true).SetWidth(110);
+            //columns.Add(f => f.WorkerLastName).Titled("Nazwisko").Sortable(true).Filterable(true).SetWidth(110);
+            //columns.Add(f => f.WorkerFirstMidName).Titled("Imię").Sortable(true).Filterable(true).SetWidth(110);
+            columns.Add()
+                .Encoded(false)
+                .Titled("")
+                .Sanitized(false)
+                .SetWidth(30)
+                .RenderValueAs(o => Html.CheckBox("checked", (o.DateOfTraining == null ? false : true), new { @class = "check-item", ID = "trained" }));
+
+            columns.Add()
+            .Encoded(false)
+            .Sanitized(false)
+            .SetWidth(30)
+            .RenderValueAs(f => Edit(f.TrainingNameId,f.WorkerID));
+        })
+        .Sortable()
+        .WithPaging(10))
+<div class="row top10">
+
+</div>
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-2"></div>
+    <div class="col-md-2">
+        @if (User.IsInRole("Administrator"))
+        {
+            <input type="button" class="btn btn-info col-md-10" value="Remove Training" id="RemoveTrainingToWorkerWorkersGrid" />
+        }
+    </div>
+    <form id="myform">
+        <div class="col-md-2">
+            <span>
+                <input type="text" placeholder="Training number" disabled id="TrainingNumber" name="field1" class="form-control hidden" value="@TrainingNumber" required>
+            </span>
+        </div>
+        <div class="col-md-2">
+            <span id="sandbox-container">
+                <input type="text" placeholder="Date" id="TrainingDate" name="field2" class="form-control" required>
+            </span>
+        </div>
+    </form>
+        <div class="col-md-2">
+            <input type="button" class="btn btn-info col-md-10" value="Complet Training" id="SaveTrainingWorkersGrid" />
+        </div>
+
+</div>
+
+<script>
+function selectAll() {
+    $(':checkbox').prop('checked', true);
+}
+    
+
+function unselectAll() {
+    $(':checkbox').prop('checked', false);
+}
+</script>
+
+@helper Edit(int TrainingNameId, int WorkerId)
+{
+
+    if (User.IsInRole("Administrator"))
+    {
+         @Html.ActionLink("Delete", "DeleteWorkerTraining", new { TrainingNameID = TrainingNameId, WorkerID = WorkerId })
+    }
+}
+
+@helper index(AssistantTraining.ViewModel.TrainingWorkersGridData item)
+{
+
+object column;
+object dir;
+int index = 0;
+
+
+    index = Model.GridItems.ToList().FindIndex(x => x.WorkerID == item.WorkerID) + 1;
+
+
+    @Html.Label(index.ToString())
+}*@
 
 
 
@@ -277,5 +394,3 @@ else
 @* *@
 @*     @Scripts.Render("~/bundles/application/Training") *@
 @* } *@
-
-<script src="~/js/training.js"></script>

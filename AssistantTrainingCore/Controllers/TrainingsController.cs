@@ -2,10 +2,12 @@
 using AssistantTrainingCore.Models;
 using AssistantTrainingCore.Repositories;
 using AssistantTrainingCore.ViewModel;
+using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
+using Kendo.Mvc.Extensions;
 
 namespace AssistantTrainingCore.Controllers
 {
@@ -66,6 +68,12 @@ namespace AssistantTrainingCore.Controllers
         {
             db = dbContext;
             this.workerRepository = workerRepository;
+        }
+
+        public ActionResult PlayerStats_Read_Bound([DataSourceRequest] DataSourceRequest request, int trainingNameId, string term)
+        {
+            var items = workerRepository.GetWorkersByTraining(trainingNameId.ToString(), term).OrderBy(p => 0).OrderBy(x => x.WorkerFullName).ToList();
+            return Json(items.ToDataSourceResult(request));
         }
 
         public JsonResult GetInstructionsByQuery(string query)
