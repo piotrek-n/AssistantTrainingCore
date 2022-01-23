@@ -101,6 +101,7 @@ void ConfigureMiddleware(IApplicationBuilder app, IServiceProvider services, IWe
         SupportedUICultures = GetSupportedCultures(),
     };
 
+
     requestLocalizationOptions.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider());
     app.UseRequestLocalization(requestLocalizationOptions);
 

@@ -78,7 +78,7 @@ namespace AssistantTrainingCore.Repositories
                 lst = (from t in db.Trainings
                     orderby t.Worker.LastName + "  " + t.Worker.FirstMidName
                     where
-                        t.TrainingName.ID == itemID && t.DateOfTraining > dateForNull
+                        t.TrainingName.ID == itemID && t.DateOfTraining.Date > dateForNull.Date
                     select new TrainingWorkersGridData
                     {
                         WorkerLastName = t.Worker.LastName,
@@ -96,8 +96,8 @@ namespace AssistantTrainingCore.Repositories
                 lst = (from t in db.Trainings
                     orderby t.Worker.LastName + "  " + t.Worker.FirstMidName
                     where
-                        t.TrainingName.ID == itemID && t.DateOfTraining.ToString().Equals("1900-01-01 00:00:00.000")
-                       select new TrainingWorkersGridData
+                        t.TrainingName.ID == itemID && t.DateOfTraining.Date == DateTime.Parse("1900-01-01 00:00:00.000").Date // t.DateOfTraining.ToString().Equals("1900-01-01 00:00:00.000")
+                select new TrainingWorkersGridData
                     {
                         WorkerLastName = t.Worker.LastName,
                         WorkerFirstMidName = t.Worker.FirstMidName,

@@ -70,10 +70,18 @@ namespace AssistantTrainingCore.Controllers
             this.workerRepository = workerRepository;
         }
 
-        public ActionResult PlayerStats_Read_Bound([DataSourceRequest] DataSourceRequest request, int trainingNameId, string term)
+        public ActionResult PlayerStats_Read_Bound([DataSourceRequest] DataSourceRequest request, string trainingNameId, string term)
         {
-            var items = workerRepository.GetWorkersByTraining(trainingNameId.ToString(), term).OrderBy(p => 0).OrderBy(x => x.WorkerFullName).ToList();
+            var items = workerRepository.GetWorkersByTraining(trainingNameId, term).OrderBy(p => 0).OrderBy(x => x.WorkerFullName).ToList();
             return Json(items.ToDataSourceResult(request));
+        }
+
+        [HttpPost]
+        public ActionResult Excel_Export_Save(string contentType, string base64, string fileName)
+        {
+            var fileContents = Convert.FromBase64String(base64);
+
+            return File(fileContents, contentType, fileName);
         }
 
         public JsonResult GetInstructionsByQuery(string query)
@@ -224,42 +232,42 @@ namespace AssistantTrainingCore.Controllers
         //}
 
         //[AjaxChildActionOnly]
-        //public ActionResult UpdateTrainings(TrainingUpdateData model)
-        //{
-        //    if (model != null)
-        //    {
-        //        if (model.Workers != null)
-        //        {
-        //            foreach (var w in model.Workers)
-        //            {
-        //                //Czy zaznaczeniej do pojedynczej instrukcji traktujemu jako zaznaczenie szkolenia do tej instrukcji, czy do wszystkich instrukcji
-        //                //z tego szkolenia.
-        //                var tr = db.Trainings.Where(x => x.TrainingNameId.Equals(w.TrainingNameId) && x.WorkerId.Equals(w.WorkerID)).ToList();
+        public ActionResult UpdateTrainings(TrainingUpdateData model)
+        {
+            if (model != null)
+            {
+                if (model.Workers != null)
+                {
+                    foreach (var w in model.Workers)
+                    {
+                        //Czy zaznaczeniej do pojedynczej instrukcji traktujemu jako zaznaczenie szkolenia do tej instrukcji, czy do wszystkich instrukcji
+                        //z tego szkolenia.
+                        var tr = db.Trainings.Where(x => x.TrainingNameId.Equals(w.TrainingNameId) && x.WorkerId.Equals(w.WorkerID)).ToList();
 
-        //                if (tr != null && w.Checked.Equals(true) && tr.Count > 0)
-        //                {
-        //                    DateTime dt = DateTime.ParseExact(model.TrainingDate, "dd.MM.yyyy", CultureInfo.InvariantCulture);
-        //                    foreach (var item in tr)
-        //                    {
-        //                        item.DateOfTraining = dt;
-        //                        db.Entry(item).Property(X => X.DateOfTraining).IsModified = true;
-        //                        db.SaveChanges();
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var b = 0;
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    var term = Session["term"] as string;
-        //    var type = Session["type"] as string;
-        //    var items = workerRepository.GetWorkersByTraining(term, type).OrderBy(p => 0);
-        //    var grid = this.gridMvcHelper.GetAjaxGrid(items);
-        //    return PartialView(GRID_WORKER_PARTIAL_PATH, grid);
-        //}                                                   
+                        if (tr != null && w.Checked.Equals(true) && tr.Count > 0)
+                        {
+                            var dt = DateTime.ParseExact(model.TrainingDate, "dd.MM.yyyy", CultureInfo.InvariantCulture);
+                            foreach (var item in tr)
+                            {
+                                item.DateOfTraining = dt;
+                                db.Entry(item).Property(X => X.DateOfTraining).IsModified = true;
+                                db.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            var b = 0;
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+            //var term = Session["term"] as string;
+            //var type = Session["type"] as string;
+            //var items = workerRepository.GetWorkersByTraining(term, type).OrderBy(p => 0);
+            //var grid = this.gridMvcHelper.GetAjaxGrid(items);
+            //return PartialView(GRID_WORKER_PARTIAL_PATH, grid);
+        }
 
         public ActionResult DeleteTraining(int id)
         {
