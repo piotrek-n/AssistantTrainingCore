@@ -1,10 +1,12 @@
-﻿using AssistantTrainingCore.Models;
+﻿using AssistantTrainingCore.Data;
+using AssistantTrainingCore.Models;
 using AssistantTrainingCore.ViewModel;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AssistantTrainingCore.Controllers
 {
@@ -13,11 +15,13 @@ namespace AssistantTrainingCore.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private ApplicationDbContext db;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext applicationDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            db = applicationDbContext;
         }
 
         public IActionResult Index()
@@ -112,9 +116,113 @@ namespace AssistantTrainingCore.Controllers
             return View();
         }
 
-        public IActionResult Create()
+        public ActionResult Edit(string id)
         {
-            throw new NotImplementedException();
+            var roles = db.Roles.ToList();
+            var selectedUser = db.Users.FirstOrDefault(x => x.Id.Equals(id));
+
+            var user = new ApplicationUser();
+            var appUser = new UserCreateData();
+            appUser.Name = selectedUser.UserName;
+            appUser.Email = selectedUser.Email;
+            //appUser.SelectedId = selectedUser.Roles.First().RoleId;
+
+            appUser.Items = roles.Select(r => new SelectListItem()
+            {
+                Value = r.Id,
+                Text = r.Name
+            });
+            return View(appUser);
+        }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> Edit(UserCreateData userVM)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var userApp = UserManager.Users.Where(x => x.UserName == userVM.Name).FirstOrDefault();
+        //        if (userApp != null) //chk for dupes
+        //        {
+        //            var user = UserManager.FindByName(userVM.Name);
+        //            user.Email = userVM.Email;
+        //            user.EmailConfirmed = true;
+        //            if (!String.IsNullOrEmpty(userVM.Password))
+        //            {
+        //                user.PasswordHash = UserManager.PasswordHasher.HashPassword(userVM.Password);
+        //            }
+
+        //            IdentityResult result = await UserManager.UpdateAsync(user);
+
+        //            if (result.Succeeded)
+        //            {
+        //                var oldRoleId = user.Roles.SingleOrDefault().RoleId;
+        //                var oldRoleName = db.Roles.SingleOrDefault(r => r.Id == oldRoleId).Name;
+        //                var newRoleName = db.Roles.SingleOrDefault(r => r.Id == userVM.SelectedId).Name;
+
+        //                if (oldRoleName != newRoleName)
+        //                {
+        //                    UserManager.RemoveFromRole(user.Id, oldRoleName);
+        //                    UserManager.AddToRole(user.Id, newRoleName);
+        //                }
+
+        //                db.SaveChanges();
+        //                return RedirectToAction("Index");
+        //            }
+
+        //            //await SignInAsync(user, true);//user is cached until logout so do this to clear cache
+        //        }
+        //    }
+        //    return View(userVM);
+        //}
+
+        public ActionResult Delete(string id)
+        {
+
+            var users = db.Users.Find(id);
+            var roles = db.Roles.ToList();
+            return View(Tuple.Create(users, roles));
+        }
+
+        public ActionResult Create()
+        {
+            var roles = db.Roles.ToList();
+            var user = new ApplicationUser();
+            var appUser = new UserCreateData();
+            appUser.Items = roles.Select(r => new SelectListItem()
+            {
+                Value = r.Id,
+                Text = r.Name
+            });
+            return View(appUser);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(UserCreateData userVM)
+        {
+            if (ModelState.IsValid)
+            {
+                var selectedRole = db.Roles.Where(r => r.Id.Equals(userVM.SelectedId)).FirstOrDefault();
+
+                if (null != selectedRole)
+                {
+                    if (!db.Users.Any(u => u.UserName == userVM.Name))
+                    {
+                        //var store = new UserStore<ApplicationUser>(db);
+                        //var manager = new UserManager<ApplicationUser>(store);
+                        //var user = new ApplicationUser { UserName = userVM.Name };
+
+                        //user.EmailConfirmed = true;
+                        //user.PasswordHash = _userManager.PasswordHasher.HashPassword(userVM.Password);
+
+                        //userManager.Create(user, userVM.Password);
+                        //userManager.AddToRole(user.Id, selectedRole.Name);
+                    }
+                }
+                return RedirectToAction("Index");
+            }
+            return View(userVM);
         }
     }
 }

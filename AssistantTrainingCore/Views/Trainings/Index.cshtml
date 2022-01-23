@@ -142,6 +142,11 @@ else
                     .PreviousNext(true)
                     .Refresh(true)
                 )
+@*            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(100)
+                .Read(read => read.Action("MainGridReadBound", "Trainings"))
+            )*@
                 .Navigatable()
                 .Sortable()
                 .Filterable())           

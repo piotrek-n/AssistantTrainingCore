@@ -69,6 +69,17 @@ namespace AssistantTrainingCore.Controllers
             this.workerRepository = workerRepository;
         }
 
+        public ActionResult Index()
+        {
+            return View(workerRepository.GetTrainings());
+        }
+
+        //public ActionResult MainGridReadBound([DataSourceRequest] DataSourceRequest request)
+        //{
+        //    var items = workerRepository.GetTrainings();
+        //    return Json(items.ToDataSourceResult(request)); //zmienic na ViewModel
+        //}
+
         public ActionResult PlayerStats_Read_Bound([DataSourceRequest] DataSourceRequest request, string trainingNameId, string term)
         {
             var items = workerRepository.GetWorkersByTraining(trainingNameId, term).OrderBy(p => 0).OrderBy(x => x.WorkerFullName).ToList();
@@ -98,11 +109,6 @@ namespace AssistantTrainingCore.Controllers
         {
             var viewModel = new TrainingIndexData();
             return View(viewModel);
-        }
-
-        public ActionResult Index()
-        {
-            return View(workerRepository.GetTrainings());
         }
 
         public ActionResult RemoveTrainings([FromBody] TrainingUpdateData model)
