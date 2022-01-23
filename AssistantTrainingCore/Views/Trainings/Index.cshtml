@@ -180,7 +180,7 @@ else
             .DataSource(dataSource => dataSource
                 .Ajax()
                 .Model(model => model.Id(p => p.TrainingNameId))
-                .PageSize(20)
+                .PageSize(200)
                 .Read(read => read.Action("PlayerStats_Read_Bound", "Trainings").Data("TrainingNameId"))
             ).AutoBind(false)
 )

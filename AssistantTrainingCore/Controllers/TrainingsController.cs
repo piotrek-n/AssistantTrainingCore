@@ -2,12 +2,11 @@
 using AssistantTrainingCore.Models;
 using AssistantTrainingCore.Repositories;
 using AssistantTrainingCore.ViewModel;
+using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Globalization;
-using Kendo.Mvc.Extensions;
 
 namespace AssistantTrainingCore.Controllers
 {
@@ -101,138 +100,41 @@ namespace AssistantTrainingCore.Controllers
             return View(viewModel);
         }
 
-        private const string GRID_PARTIAL_PATH = "~/Views/Training/_TrainingGrid.cshtml";
-        private const string GRID_WORKER_PARTIAL_PATH = "~/Views/Training/_TrainingWorkersGrid.cshtml";
-
-        //private IGridMvcHelper gridMvcHelper;
-
-        //public TrainingController()
-        //{
-        //    this.gridMvcHelper = new GridMvcHelper();
-        //}
-
         public ActionResult Index()
         {
             return View(workerRepository.GetTrainings());
         }
 
-        //[AjaxChildActionOnly]
-        public PartialViewResult GetGrid(string term)
+        public ActionResult RemoveTrainings([FromBody] TrainingUpdateData model)
         {
-            //var items = repos.GetTrainings().OrderBy(p => 0);
-            //var grid = this.gridMvcHelper.GetAjaxGrid(items);
+            if (model.Workers != null)
+            {
+                foreach (var w in model.Workers)
+                {
+                    //Czy zaznaczeniej do pojedynczej instrukcji traktujemu jako zaznaczenie szkolenia do tej instrukcji, czy do wszystkich instrukcji
+                    //z tego szkolenia.
+                    var tr = db.Trainings.Where(x => x.TrainingNameId.Equals(w.TrainingNameId) && x.WorkerId.Equals(w.WorkerID)).ToList();
 
-            var items = workerRepository.GetTrainings().AsEnumerable();
-            return PartialView(GRID_PARTIAL_PATH, items);
+                    if (tr != null && w.Checked.Equals(true) && tr.Count > 0)
+                    {
+                        foreach (var item in tr)
+                        {
+                            db.Trainings.Attach(item);
+                            db.Trainings.Remove(item);
+                            db.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        var b = 0;
+                    }
+                }
+            }
+
+            return RedirectToAction("Index");
         }
 
-        //[AjaxChildActionOnly]
-        public PartialViewResult GetGridByInstruction(string term)
-        {
-            //var repos = new WorkerRepository();
-
-            IEnumerable<TrainingGroup> items;
-            if (String.IsNullOrEmpty(term))
-            {
-                items = workerRepository.GetTrainings().AsEnumerable();
-            }
-            else
-            {
-                items = workerRepository.GetTrainings().Where(x => x.Instruction.Number.Contains(term)).AsEnumerable();
-            }
-
-            return PartialView(GRID_PARTIAL_PATH, items);
-        }
-
-        //[AjaxChildActionOnly]
-        public PartialViewResult GetGridByTraining(string term)
-        {
-            IEnumerable<TrainingGroup> items;
-            if (String.IsNullOrEmpty(term))
-            {
-                items = workerRepository.GetTrainings().ToList();
-            }
-            else
-            {
-                items = workerRepository.GetTrainings()
-                    .Where(x => x.TrainingName.Number.ToUpper().Contains(term.ToUpper())).AsEnumerable();
-            }
-
-            return PartialView(GRID_PARTIAL_PATH, items);
-        }
-
-        //[AjaxChildActionOnly]
-        //public PartialViewResult GetWorkerGrid(string term, string type)
-        //{
-        //    Session["term"] = term;
-        //    Session["type"] = type;
-
-        //    var items = workerRepository.GetWorkersByTraining(term, type).OrderBy(p => 0).OrderBy(x => x.WorkerFullName);
-        //    var grid = this.gridMvcHelper.GetAjaxGrid(items);
-
-        //    return PartialView(GRID_WORKER_PARTIAL_PATH, grid);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GridPager(int? page)
-        //{
-
-        //    var items = workerRepository.GetTrainings().OrderBy(p => 0);
-        //    var grid = this.gridMvcHelper.GetAjaxGrid(items, page);
-        //    object jsonData = this.gridMvcHelper.GetGridJsonData(grid, GRID_PARTIAL_PATH, this);
-
-        //    return Json(jsonData);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GridWorkerPager(int? page, string a)
-        //{
-        //    var term = Session["term"] as string;
-        //    var type = Session["type"] as string;
-        //    var items = workerRepository.GetWorkersByTraining(term, type).OrderBy(p => 0);
-        //    var grid = this.gridMvcHelper.GetAjaxGrid(items, page);
-        //    object jsonData = this.gridMvcHelper.GetGridJsonData(grid, GRID_WORKER_PARTIAL_PATH, this);
-
-        //    return Json(jsonData);
-        //}
-
-        //[AjaxChildActionOnly]
-        //public ActionResult RemoveTrainings(TrainingUpdateData model)
-        //{
-        //    if (model.Workers != null)
-        //    {
-        //        foreach (var w in model.Workers)
-        //        {
-        //            //Czy zaznaczeniej do pojedynczej instrukcji traktujemu jako zaznaczenie szkolenia do tej instrukcji, czy do wszystkich instrukcji
-        //            //z tego szkolenia.
-        //            var tr = db.Trainings.Where(x => x.TrainingNameId.Equals(w.TrainingNameId) && x.WorkerId.Equals(w.WorkerID)).ToList();
-
-        //            if (tr != null && w.Checked.Equals(true) && tr.Count > 0)
-        //            {
-        //                foreach (var item in tr)
-        //                {
-        //                    db.Trainings.Attach(item);
-        //                    db.Trainings.Remove(item);
-        //                    db.SaveChanges();
-        //                }
-        //            }
-        //            else
-        //            {
-        //                var b = 0;
-        //            }
-        //        }
-        //    }
-
-        //    var repos = new WorkerRepository();
-        //    var term = Session["term"] as string;
-        //    var type = Session["type"] as string;
-        //    var items = repos.GetWorkersByTraining(term, type).OrderBy(p => 0);
-        //    var grid = this.gridMvcHelper.GetAjaxGrid(items);
-        //    return PartialView(GRID_WORKER_PARTIAL_PATH, grid);
-        //}
-
-        //[AjaxChildActionOnly]
-        public ActionResult UpdateTrainings(TrainingUpdateData model)
+        public ActionResult UpdateTrainings([FromBody] TrainingUpdateData model)
         {
             if (model != null)
             {
@@ -262,11 +164,6 @@ namespace AssistantTrainingCore.Controllers
                 }
             }
             return RedirectToAction("Index");
-            //var term = Session["term"] as string;
-            //var type = Session["type"] as string;
-            //var items = workerRepository.GetWorkersByTraining(term, type).OrderBy(p => 0);
-            //var grid = this.gridMvcHelper.GetAjaxGrid(items);
-            //return PartialView(GRID_WORKER_PARTIAL_PATH, grid);
         }
 
         public ActionResult DeleteTraining(int id)
@@ -337,35 +234,6 @@ namespace AssistantTrainingCore.Controllers
             return RedirectToAction("Index");
         }
 
-        //public ActionResult Excel()
-        //{
-        //    if (Session["term"] == null || Session["type"] == null || String.IsNullOrEmpty(Session["term"].ToString()) || String.IsNullOrEmpty(Session["type"].ToString()))
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-        //    var repos = new WorkerRepository();
-
-        //    var workers = repos.GetWorkersByTraining(Session["term"].ToString(), Session["type"].ToString()).Select(x => new { Name = x.WorkerLastName, FirstName = x.WorkerFirstMidName });
-
-        //    using (ExcelPackage pck = new ExcelPackage())
-        //    {
-        //        ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Workers");
-        //        ws.Cells["A1"].LoadFromCollection(workers.Select(x => new { FullName = x.Name + " " + x.FirstName }).ToList().OrderBy(x => x.FullName), true);
-
-        //        Byte[] fileBytes = pck.GetAsByteArray();
-        //        Response.Clear();
-        //        Response.Buffer = true;
-        //        Response.AddHeader("content-disposition", "attachment;filename=Workers.xlsx");
-
-        //        Response.Charset = "";
-        //        Response.ContentType = "application/vnd.ms-excel";
-        //        StringWriter sw = new StringWriter();
-        //        Response.BinaryWrite(fileBytes);
-        //        Response.End();
-        //    }
-
-        //    return RedirectToAction("Index");
-        //}
-
         public ActionResult InstructionsJsonAction(string q, string t)
         {
             //Session["term"] = t;
@@ -387,7 +255,7 @@ namespace AssistantTrainingCore.Controllers
                             Reminder = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Reminder
                         }
                     ).Select(x => new InstructionsJson
-                        {id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version})
+                    { id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version })
                     .Where(x => x.text.ToUpper().Contains(q.ToUpper()))
                     .ToList();
             }
@@ -404,7 +272,7 @@ namespace AssistantTrainingCore.Controllers
                 //         ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
                 //     }
                 // ).Select(x => x.ID).ToList();
-                
+
                 var items = db.Instructions.GroupBy(c => c.Number)
                     .Select(g => new
                     {
@@ -414,37 +282,44 @@ namespace AssistantTrainingCore.Controllers
                     }).Select(x => x.ID).ToList();
 
                 lstInstructions = (from i in db.Instructions
-                    join tg in db.TrainingGroups on new {ID = i.ID} equals new {ID = tg.InstructionId} into tg_join
-                    from tg in tg_join.DefaultIfEmpty()
-                    where
-                        i.Number.ToUpper().Contains(q.ToUpper())
-                        && items.Contains(i.ID)
-                        && tg.InstructionId == null
-                    select new InstructionsJson
-                    {
-                        id = i.ID.ToString(), text = i.Number, name = i.Name, version = i.Version, reminder = i.Reminder
-                    }).ToList();
+                                   join tg in db.TrainingGroups on new { ID = i.ID } equals new { ID = tg.InstructionId } into tg_join
+                                   from tg in tg_join.DefaultIfEmpty()
+                                   where
+                                       i.Number.ToUpper().Contains(q.ToUpper())
+                                       && items.Contains(i.ID)
+                                       && tg.InstructionId == null
+                                   select new InstructionsJson
+                                   {
+                                       id = i.ID.ToString(),
+                                       text = i.Number,
+                                       name = i.Name,
+                                       version = i.Version,
+                                       reminder = i.Reminder
+                                   }).ToList();
                 //**FIX
                 //If a new worker was added.
                 if (lstInstructions.Count() == 0)
                 {
                     lstInstructions =
                         (from w in db.Workers
-                            join wg in db.GroupWorkers on w.ID equals wg.WorkerId
-                            join gi in db.InstructionGroups on wg.GroupId equals gi.GroupId
-                            join i in db.Instructions on gi.InstructionId equals i.ID
-                            join tt in db.Trainings
-                                on new {InstructionId = i.ID, WorkerId = wg.WorkerId}
-                                equals new {tt.InstructionId, tt.WorkerId} into t_join
-                            from tt in t_join.DefaultIfEmpty()
-                            where
-                                w.IsSuspend == false
-                                && items.Contains(i.ID)
-                            select new InstructionsJson
-                            {
-                                id = i.ID.ToString(), text = i.Number, name = i.Name, version = i.Version,
-                                reminder = i.Reminder
-                            }).Distinct().ToList();
+                         join wg in db.GroupWorkers on w.ID equals wg.WorkerId
+                         join gi in db.InstructionGroups on wg.GroupId equals gi.GroupId
+                         join i in db.Instructions on gi.InstructionId equals i.ID
+                         join tt in db.Trainings
+                             on new { InstructionId = i.ID, WorkerId = wg.WorkerId }
+                             equals new { tt.InstructionId, tt.WorkerId } into t_join
+                         from tt in t_join.DefaultIfEmpty()
+                         where
+                             w.IsSuspend == false
+                             && items.Contains(i.ID)
+                         select new InstructionsJson
+                         {
+                             id = i.ID.ToString(),
+                             text = i.Number,
+                             name = i.Name,
+                             version = i.Version,
+                             reminder = i.Reminder
+                         }).Distinct().ToList();
                 }
             }
 
@@ -505,19 +380,19 @@ namespace AssistantTrainingCore.Controllers
 
                 var instructionWorkerList =
                     (from w in db.Workers
-                        join gw in db.GroupWorkers on w.ID equals gw.WorkerId
-                        join ig in db.InstructionGroups on gw.GroupId equals ig.GroupId
-                        join t in db.Trainings
-                            on new {WorkerId = w.ID, ID = ig.Instruction.ID}
-                            equals new {t.WorkerId, ID = t.InstructionId} into t_join
-                        from t in t_join.DefaultIfEmpty()
-                        where
-                            w.IsSuspend == false && intInstructionIDs.Contains(ig.Instruction.ID) && (int?) t.ID == null
-                        select new
-                        {
-                            WorkerID = w.ID,
-                            InstructionID = ig.Instruction.ID
-                        }
+                     join gw in db.GroupWorkers on w.ID equals gw.WorkerId
+                     join ig in db.InstructionGroups on gw.GroupId equals ig.GroupId
+                     join t in db.Trainings
+                         on new { WorkerId = w.ID, ID = ig.Instruction.ID }
+                         equals new { t.WorkerId, ID = t.InstructionId } into t_join
+                     from t in t_join.DefaultIfEmpty()
+                     where
+                         w.IsSuspend == false && intInstructionIDs.Contains(ig.Instruction.ID) && (int?)t.ID == null
+                     select new
+                     {
+                         WorkerID = w.ID,
+                         InstructionID = ig.Instruction.ID
+                     }
                     ).ToList();
 
                 if (instructionWorkerList != null)
