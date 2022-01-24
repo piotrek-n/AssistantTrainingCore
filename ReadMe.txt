@@ -52,3 +52,21 @@ ADD NormalizedName varchar(255) NULL;
 
 ALTER TABLE AspNetRoles
 ADD ConcurrencyStamp varchar(max) NULL;
+
+
+Update AspNetRoles SET NormalizedName = UPPER(Name);
+#https://gist.github.com/hieuhani/1039de6b9681714782a38c5a30fe4c35
+
+CREATE TABLE [dbo].[AspNetRoleClaims] (
+    [Id]         INT            IDENTITY (1, 1) NOT NULL,
+    [RoleId]     NVARCHAR (128) NOT NULL,
+    [ClaimType]  NVARCHAR (MAX) NULL,
+    [ClaimValue] NVARCHAR (MAX) NULL,
+    CONSTRAINT [PK_AspNetRoleClaims] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_AspNetRoleClaims_AspNetRoles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[AspNetRoles] ([Id]) ON DELETE CASCADE
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId]
+    ON [dbo].[AspNetRoleClaims]([RoleId] ASC);

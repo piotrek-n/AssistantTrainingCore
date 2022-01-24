@@ -26,7 +26,6 @@ namespace AssistantTrainingCore.Controllers
 
         public IActionResult Index()
         {
-
             return View();
         }
 
@@ -135,53 +134,67 @@ namespace AssistantTrainingCore.Controllers
             return View(appUser);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> Edit(UserCreateData userVM)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var userApp = UserManager.Users.Where(x => x.UserName == userVM.Name).FirstOrDefault();
-        //        if (userApp != null) //chk for dupes
-        //        {
-        //            var user = UserManager.FindByName(userVM.Name);
-        //            user.Email = userVM.Email;
-        //            user.EmailConfirmed = true;
-        //            if (!String.IsNullOrEmpty(userVM.Password))
-        //            {
-        //                user.PasswordHash = UserManager.PasswordHasher.HashPassword(userVM.Password);
-        //            }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(UserCreateData userVM)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = db.Users.FirstOrDefault(u => u.UserName == userVM.Name);
+                if (user != null) //chk for dupes
+                {
+                    //var user = UserManager.FindByName(userVM.Name);
+                    user.Email = userVM.Email;
+                    user.EmailConfirmed = true;
+                    if (!String.IsNullOrEmpty(userVM.Password))
+                    {
+                        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        //            IdentityResult result = await UserManager.UpdateAsync(user);
+                        var resultCh = await _userManager.ResetPasswordAsync(user, token, userVM.Password);
 
-        //            if (result.Succeeded)
-        //            {
-        //                var oldRoleId = user.Roles.SingleOrDefault().RoleId;
-        //                var oldRoleName = db.Roles.SingleOrDefault(r => r.Id == oldRoleId).Name;
-        //                var newRoleName = db.Roles.SingleOrDefault(r => r.Id == userVM.SelectedId).Name;
+                        //user.PasswordHash = UserManager.PasswordHasher.HashPassword(userVM.Password);
+                    }
 
-        //                if (oldRoleName != newRoleName)
-        //                {
-        //                    UserManager.RemoveFromRole(user.Id, oldRoleName);
-        //                    UserManager.AddToRole(user.Id, newRoleName);
-        //                }
+                    IdentityResult result = await _userManager.UpdateAsync(user);
 
-        //                db.SaveChanges();
-        //                return RedirectToAction("Index");
-        //            }
+                    if (result.Succeeded)
+                    {
 
-        //            //await SignInAsync(user, true);//user is cached until logout so do this to clear cache
-        //        }
-        //    }
-        //    return View(userVM);
-        //}
+                        var oldRoleName = _userManager.GetRolesAsync(user).Result.First();
+                        var newRoleName = db.Roles.SingleOrDefault(predicate: r => r.Id == userVM.SelectedId).Name;
+
+                        if (oldRoleName != newRoleName)
+                        {
+                            _ = await _userManager.RemoveFromRoleAsync(user, oldRoleName);
+                            _ = await _userManager.AddToRoleAsync(user, newRoleName);
+                        }
+
+                        db.SaveChanges();
+                        return RedirectToAction("Index");
+                    }
+
+                    //await SignInAsync(user, true);//user is cached until logout so do this to clear cache
+                }
+            }
+            return View(userVM);
+        }
 
         public ActionResult Delete(string id)
         {
-
-            var users = db.Users.Find(id);
+            var user = db.Users.Find(id);
             var roles = db.Roles.ToList();
-            return View(Tuple.Create(users, roles));
+            return View(user);
+        }
+
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(string id)
+        {
+            var user = db.Users.Find(id);
+            _ = db.Users.Remove(user);
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         public ActionResult Create()
@@ -199,9 +212,9 @@ namespace AssistantTrainingCore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(UserCreateData userVM)
+        public async Task<ActionResult> CreateAsync(UserCreateData userVM)
         {
-            if (ModelState.IsValid)
+            if (!string.IsNullOrEmpty(userVM.Name) && !string.IsNullOrEmpty(userVM.Password))
             {
                 var selectedRole = db.Roles.Where(r => r.Id.Equals(userVM.SelectedId)).FirstOrDefault();
 
@@ -209,20 +222,29 @@ namespace AssistantTrainingCore.Controllers
                 {
                     if (!db.Users.Any(u => u.UserName == userVM.Name))
                     {
-                        //var store = new UserStore<ApplicationUser>(db);
-                        //var manager = new UserManager<ApplicationUser>(store);
-                        //var user = new ApplicationUser { UserName = userVM.Name };
+                        var users = db.Users;
+                        if (!db.Users.Any(u => u.UserName == userVM.Name))
+                        {
+                            var done = await _userManager.CreateAsync(new IdentityUser
+                            {
+                                UserName = userVM.Name,
+                                Email = userVM.Email
+                            }, userVM.Password);
 
-                        //user.EmailConfirmed = true;
-                        //user.PasswordHash = _userManager.PasswordHasher.HashPassword(userVM.Password);
-
-                        //userManager.Create(user, userVM.Password);
-                        //userManager.AddToRole(user.Id, selectedRole.Name);
+                            if (done.Succeeded)
+                            {
+                                await _userManager.AddToRoleAsync(_userManager.Users.Where(u => u.UserName == userVM.Name).First(), selectedRole.Name);
+                            }
+                            else
+                            {
+                                return RedirectToAction("Create");
+                            }
+                        }
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction("Create");
             }
-            return View(userVM);
+            return RedirectToAction("Create");
         }
     }
 }
