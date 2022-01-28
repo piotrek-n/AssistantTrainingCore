@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace AssistantTrainingCore.Repositories
 {
-    public class ReportsRepository
+    public class ReportsRepository : IReportsRepository
     {
         private readonly ApplicationDbContext db;
 

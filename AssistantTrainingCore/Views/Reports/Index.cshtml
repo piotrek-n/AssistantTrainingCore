@@ -1,1 +1,16 @@
-﻿<h2>Reports</h2>
+﻿
+            <link rel="stylesheet" href="https://kendo.cdn.telerik.com/themes/5.0.1/default/default-main.css"></link>
+
+@*<div id="react-notes-app"></div>*@
+<div id="react-report-grid-app"></div>
+
+@section scripts
+{
+    <environment names="Development">
+        @*<script src="~/dist/react_notes.js"></script>*@
+        <script src="~/dist/react_report_grid.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/dist/react_report_grid.js" asp-append-version="true"></script>
+    </environment>
+}

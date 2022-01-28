@@ -90,6 +90,14 @@
     </footer>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
+
+    <environment names="Development">
+        <script src="~/dist/main.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/dist/main.js" asp-append-version="true"></script>
+    </environment>
+
+    @RenderSection("scripts", false)
 </body>
 </html>

@@ -6,6 +6,7 @@ using AssistantTrainingCore.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Reflection;
@@ -55,6 +56,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
     });
 
     services.AddTransient<IWorkerRepository, WorkerRepository>();
+    services.AddTransient<IReportsRepository, ReportsRepository>();
 
     services.Configure<RequestLocalizationOptions>(
     options =>
@@ -108,6 +110,20 @@ void ConfigureMiddleware(IApplicationBuilder app, IServiceProvider services, IWe
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapControllerRoute(name: "default", pattern: "{culture=pl-PL}/{controller=Home}/{action=Index}/{id?}");
+    });
+
+    //Switch off if SSR is develop
+    app.UseSpa(spa =>
+    {
+
+
+        if (environment.IsDevelopment())
+        {
+            spa.Options.SourcePath = "ClientApp";
+            //spa.Options.DevServerPort = 9000;
+
+            spa.UseReactDevelopmentServer(npmScript: "start");
+        }
     });
 };
 void ConfigureEndpoints(IEndpointRouteBuilder app, IServiceProvider services)
