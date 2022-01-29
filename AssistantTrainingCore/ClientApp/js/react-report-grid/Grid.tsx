@@ -21,7 +21,7 @@ import { Button } from '@progress/kendo-react-buttons';
 const ReportGrid = () => {
 
     const reports = [
-        { text: "brak", id: 1 },
+        { text: "Wybierz", id: 1 },
         { text: "SZKOLENIA", id: 2 },
         { text: "INSTRUKCJE", id: 3 },
         { text: "PRACOWNICY", id: 4 },
@@ -93,6 +93,21 @@ const ReportGrid = () => {
             });
     };
 
+    const handleMouseEvent = (event: React.MouseEvent<HTMLButtonElement>) => {
+        // axios({
+        //     url: 'http://localhost:5000/static/example.pdf',
+        //     method: 'GET',
+        //     responseType: 'blob', // important
+        // }).then((response) => {
+        //     const url = window.URL.createObjectURL(new Blob([response.data]));
+        //     const link = document.createElement('a');
+        //     link.href = url;
+        //     link.setAttribute('download', 'file.pdf');
+        //     document.body.appendChild(link);
+        //     link.click();
+        // });
+    };
+
     return (<>
         <div>
             <div className="example-config">
@@ -107,9 +122,14 @@ const ReportGrid = () => {
                 onChange={handleChange}
             />
         </div>
-        <Button icon="export">Export</Button>
+        <Button icon="export" onClick={handleMouseEvent}>Export</Button>
 
-        {selectedReport.value.id > 1 && dataGrid.length > 0 && <Grid data={dataGrid} total={total}>
+        {selectedReport.value.id > 1 && dataGrid.length > 0 && <Grid 
+            data={dataGrid} 
+            total={total}
+            sortable={true}
+            pageable={{ pageSizes: true }}
+        >
             {dataAllColumns}
         </Grid>}
 

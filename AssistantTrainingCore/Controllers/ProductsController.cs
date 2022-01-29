@@ -38,6 +38,7 @@ namespace AssistantTrainingCore.Controllers
             this.reportsRepository = reportsRepository;
         }
         // GET: api/Products
+        // Model kazdego raportu w tsx
         [HttpGet]
         public JsonResult GetProducts([DataSourceRequest] DataSourceRequest request, [FromQuery] int value)
         {
@@ -46,20 +47,23 @@ namespace AssistantTrainingCore.Controllers
             switch (value)
             {
                 case 1:
-                    json = ReportsRepository.EmptyReport();
+                    json = "{}"; ReportsRepository.EmptyReport();
                     break;
 
                 case 2:
-                    json = reportsRepository.IncompleteTraining();
+                    var r2 = reportsRepository.IncompleteTrainingResult();
+                    return Json(r2?.ToDataSourceResult(request));
                     break;
 
                 case 3:
-                    json = reportsRepository.InstructionsWithoutTraining();
+                    var r3 = reportsRepository.InstructionsWithoutTrainingResult();
+                    return Json(r3?.ToDataSourceResult(request));
                     break;
 
                 case 4:
-                    json = reportsRepository.WorkersWithoutTraining();
-                    break;
+                    json = reportsRepository.WorkersWithoutTrainingJSON();
+                    var r4 = reportsRepository.WorkersWithoutTrainingResult();
+                    return Json(r4?.ToDataSourceResult(request));
 
                 default:
                     break;
