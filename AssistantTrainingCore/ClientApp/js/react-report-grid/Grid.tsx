@@ -121,8 +121,13 @@ const ReportGrid = () => {
                 value={selectedReport.value}
                 onChange={handleChange}
             />
+            <form action="/spreadprocessing/generatedocument" method="post" style={{ display:"inline"}}>
+                <input type="hidden"  value={selectedReport.value.text} name="fileFormat" />
+                <input type="submit" className="k-button k-primary wide-btn" value="Generate and Download" />
+            </form>
         </div>
-        <Button icon="export" onClick={handleMouseEvent}>Export</Button>
+        {/*<Button icon="export" onClick={handleMouseEvent}>Export</Button>*/}
+            
 
         {selectedReport.value.id > 1 && dataGrid.length > 0 && <Grid 
             data={dataGrid} 

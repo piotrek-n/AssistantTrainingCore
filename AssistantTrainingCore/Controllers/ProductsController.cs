@@ -125,5 +125,6 @@ namespace AssistantTrainingCore.Controllers
             // instead of an in-memory list.
             return Json(products?.ToDataSourceResult(request));
         }
+        
     }
 }

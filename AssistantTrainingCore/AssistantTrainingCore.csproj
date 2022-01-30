@@ -19,6 +19,11 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.1" />
     <PackageReference Include="Telerik.UI.for.AspNet.Core" Version="2022.1.119" />
+    <PackageReference Include="Telerik.Documents.Core" Version="2022.1.106" />
+    <PackageReference Include="Telerik.Documents.Spreadsheet" Version="2022.1.106" />
+    <PackageReference Include="Telerik.Documents.Spreadsheet.FormatProviders.OpenXml" Version="2022.1.106" />
+    <PackageReference Include="Telerik.Documents.Spreadsheet.FormatProviders.Pdf" Version="2022.1.106" />
+    <PackageReference Include="Telerik.Documents.SpreadsheetStreaming" Version="2022.1.106" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
