@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { handleApiSuccess, handleApiError, IApiResult } from '../shared/api';
-import { Product } from './models';
+import { IncompleteTrainingDataReport, WorkersWithoutTrainingResult, InstructionsWithoutTrainingResult, Product } from './models';
+
 
 const productsApiUrl = '/api/Products';
 
@@ -27,3 +28,18 @@ export const deleteNote = (id: string): Promise<IApiResult> => {
     .then(handleApiSuccess)
     .catch(handleApiError);
 }
+
+export const getIncompleteTraining= (queryStr: string, value: number): Promise<ResponseObject<IncompleteTrainingDataReport>> => {
+    return axios.get<ResponseObject<IncompleteTrainingDataReport>>(`${productsApiUrl}?${queryStr}&value=${value}`)
+        .then(response => response.data);
+};
+
+export const getWorkersWithoutTraining = (queryStr: string, value: number): Promise<ResponseObject<WorkersWithoutTrainingResult>> => {
+    return axios.get<ResponseObject<WorkersWithoutTrainingResult>>(`${productsApiUrl}?${queryStr}&value=${value}`)
+        .then(response => response.data);
+};
+
+export const getInstructionsWithoutTraining = (queryStr: string, value: number): Promise<ResponseObject<InstructionsWithoutTrainingResult>> => {
+    return axios.get<ResponseObject<InstructionsWithoutTrainingResult>>(`${productsApiUrl}?${queryStr}&value=${value}`)
+        .then(response => response.data);
+};

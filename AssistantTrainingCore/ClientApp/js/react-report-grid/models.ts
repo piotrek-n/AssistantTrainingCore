@@ -1,3 +1,22 @@
+export interface IncompleteTrainingDataReport {
+    trainingNumber: string;
+    instructionNumber: string;
+    dT_RowId: number;
+}
+
+export interface WorkersWithoutTrainingResult {
+    name: string;
+    number: string;
+    version: number;
+    dT_RowId: number;
+}
+
+export interface InstructionsWithoutTrainingResult {
+    number: string;
+    version: number;
+    dT_RowId: number;
+}
+
 export interface ProductCategory {
     CategoryID?: number,
     CategoryName?: string,

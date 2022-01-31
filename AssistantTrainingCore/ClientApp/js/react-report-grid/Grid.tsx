@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect, useReducer } from 'react';
 import { toDataSourceRequestString, translateDataSourceResultGroups } from '@progress/kendo-data-query';
-import { getProducts } from './api';
-import { Product } from './models';
+import {getIncompleteTraining, getInstructionsWithoutTraining, getProducts, getWorkersWithoutTraining } from './api';
+import {IncompleteTrainingDataReport, InstructionsWithoutTrainingResult, Product, WorkersWithoutTrainingResult } from './models';
 import axios from 'axios';
 
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
@@ -31,10 +31,15 @@ const ReportGrid = () => {
         value: { text: "Wyczyść", id: 1 },
     });
 
-    const [dataGrid, setDataGrid] = useState<Product[] | []>([]);
     const [dataState, setDataState] = useState({ skip: 0, take: 20 });
     const [total, setTotal] = useState(0);
+
+    const [dataGrid, setDataGrid] = useState<Product[] | []>([]);
     const [dataAllColumns, setDataAllColumns] = useState<JSX.Element[] | []>([]);
+
+    const [dataIncompleteTrainingGrid, setIncompleteTrainingDataGrid] = useState<IncompleteTrainingDataReport[] | []>([]);
+    const [dataWorkersWithoutTrainingGrid, setWorkersWithoutTrainingDataGrid] = useState<WorkersWithoutTrainingResult[] | []>([]);
+    const [dataInstructionsWithoutTrainingGrid, setInstructionsWithoutTrainingDataGrid] = useState<InstructionsWithoutTrainingResult[] | []>([]);
 
 
     //useEffect(() => {
@@ -76,6 +81,57 @@ const ReportGrid = () => {
             value: event.target.value,
         });
 
+        switch (event.target.value.id)
+        {
+            case 2:
+                getIncompleteTraining(`${toDataSourceRequestString(dataState)}`, event.target.value.id)
+                    .then(incompleteTraining => {
+                        console.log(incompleteTraining);
+
+                        // setTimeout(function () {
+                        //     var allColumns = products.Data.length > 0 ? Object.keys(products.Data[0]) : []
+                        //     var columnsToShow = allColumns.map((item, i) => <GridColumn field={item} key={i} />);
+                        //     setDataAllColumns(columnsToShow);
+                        // }, 1000);
+
+                        setTotal(incompleteTraining.Total);
+                        setIncompleteTrainingDataGrid(incompleteTraining.Data);
+
+                    });
+                break;
+            case 3:
+                getWorkersWithoutTraining(`${toDataSourceRequestString(dataState)}`, event.target.value.id)
+                    .then(workersWithoutTraining => {
+                        console.log(workersWithoutTraining);
+
+                        // setTimeout(function () {
+                        //     var allColumns = products.Data.length > 0 ? Object.keys(products.Data[0]) : []
+                        //     var columnsToShow = allColumns.map((item, i) => <GridColumn field={item} key={i} />);
+                        //     setDataAllColumns(columnsToShow);
+                        // }, 1000);
+
+                        setTotal(workersWithoutTraining.Total);
+                        setWorkersWithoutTrainingDataGrid(workersWithoutTraining.Data);
+
+                    });
+                break;
+            case 4:
+                getInstructionsWithoutTraining(`${toDataSourceRequestString(dataState)}`, event.target.value.id)
+                    .then(instructionsWithoutTraining => {
+                        console.log(instructionsWithoutTraining);
+
+                        // setTimeout(function () {
+                        //     var allColumns = products.Data.length > 0 ? Object.keys(products.Data[0]) : []
+                        //     var columnsToShow = allColumns.map((item, i) => <GridColumn field={item} key={i} />);
+                        //     setDataAllColumns(columnsToShow);
+                        // }, 1000);
+
+                        setTotal(instructionsWithoutTraining.Total);
+                        setInstructionsWithoutTrainingDataGrid(instructionsWithoutTraining.Data);
+
+                    });
+                break;
+        }
         // useEffect
         getProducts(`${toDataSourceRequestString(dataState)}`, event.target.value.id)
             .then(products => {
@@ -92,22 +148,7 @@ const ReportGrid = () => {
 
             });
     };
-
-    const handleMouseEvent = (event: React.MouseEvent<HTMLButtonElement>) => {
-        // axios({
-        //     url: 'http://localhost:5000/static/example.pdf',
-        //     method: 'GET',
-        //     responseType: 'blob', // important
-        // }).then((response) => {
-        //     const url = window.URL.createObjectURL(new Blob([response.data]));
-        //     const link = document.createElement('a');
-        //     link.href = url;
-        //     link.setAttribute('download', 'file.pdf');
-        //     document.body.appendChild(link);
-        //     link.click();
-        // });
-    };
-
+    
     return (<>
         <div>
             <div className="example-config">
@@ -126,7 +167,6 @@ const ReportGrid = () => {
                 <input type="submit" className="k-button k-primary wide-btn" value="Generate and Download" />
             </form>
         </div>
-        {/*<Button icon="export" onClick={handleMouseEvent}>Export</Button>*/}
             
 
         {selectedReport.value.id > 1 && dataGrid.length > 0 && <Grid 
@@ -137,6 +177,17 @@ const ReportGrid = () => {
         >
             {dataAllColumns}
         </Grid>}
+
+            {selectedReport.value.id == 2 && dataIncompleteTrainingGrid.length > 0 && 
+                <Grid
+                data={dataIncompleteTrainingGrid}
+                total={total}
+                sortable={true}
+                pageable={{ pageSizes: true }}
+            >
+                <GridColumn field="TrainingNumber" title="Training Number" />
+                <GridColumn field="InstructionNumber" title="Instruction Number"  />
+            </Grid>}     
 
 
     </>

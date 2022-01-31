@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.1" />w
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
@@ -32,10 +32,13 @@
 
   <ItemGroup>
     <Compile Remove="Templates\**" />
+    <Compile Remove="wwwroot\js\**" />
     <Content Remove="Templates\**" />
+    <Content Remove="wwwroot\js\**" />
     <EmbeddedResource Remove="Templates\**" />
+    <EmbeddedResource Remove="wwwroot\js\**" />
     <None Remove="Templates\**" />
-    <None Include="wwwroot\js\training.js" />
+    <None Remove="wwwroot\js\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +53,7 @@
 
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties UseCdnSupport="" /></VisualStudio></ProjectExtensions>
