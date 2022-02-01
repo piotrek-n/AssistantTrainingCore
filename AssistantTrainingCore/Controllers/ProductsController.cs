@@ -52,17 +52,20 @@ namespace AssistantTrainingCore.Controllers
 
                 case 2:
                     var r2 = reportsRepository.IncompleteTrainingResult();
+                    request.PageSize = r2.Count();
                     return Json(r2?.ToDataSourceResult(request));
                     break;
 
                 case 3:
                     var r3 = reportsRepository.InstructionsWithoutTrainingResult();
+                    request.PageSize = r3.Count();
                     return Json(r3?.ToDataSourceResult(request));
                     break;
 
                 case 4:
                     json = reportsRepository.WorkersWithoutTrainingJSON();
                     var r4 = reportsRepository.WorkersWithoutTrainingResult();
+                    request.PageSize = r4.Count();
                     return Json(r4?.ToDataSourceResult(request));
 
                 default:

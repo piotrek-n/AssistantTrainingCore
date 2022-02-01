@@ -70,3 +70,8 @@ CREATE TABLE [dbo].[AspNetRoleClaims] (
 GO
 CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId]
     ON [dbo].[AspNetRoleClaims]([RoleId] ASC);
+    
+    
+##PUBLISH
+- GO TO Rider and next run: "prod": "rimraf ../wwwroot/dist && webpack --mode production --progress"
+- Execute dotnet publish 
