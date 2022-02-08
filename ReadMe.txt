@@ -75,3 +75,36 @@ CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId]
 ##PUBLISH
 - GO TO Rider and next run: "prod": "rimraf ../wwwroot/dist && webpack --mode production --progress"
 - Execute dotnet publish 
+
+##Migration 
+
+Delete Ef tables
+
+
+USE [TrainingsCore]
+GO
+
+/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 08.02.2022 12:32:10 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[__EFMigrationsHistory](
+	[MigrationId] [nvarchar](150) NOT NULL,
+	[ProductVersion] [nvarchar](32) NOT NULL,
+ CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY CLUSTERED 
+(
+	[MigrationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+INSERT INTO [dbo].[__EFMigrationsHistory]
+           ([MigrationId]
+           ,[ProductVersion])
+     VALUES
+           ('20220208202323_Intial'
+           ,'6.0.1')
+GO

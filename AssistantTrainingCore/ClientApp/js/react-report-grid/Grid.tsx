@@ -1,5 +1,9 @@
 ﻿import React, {useState, useEffect, useReducer} from 'react';
-import {toDataSourceRequestString, translateDataSourceResultGroups} from '@progress/kendo-data-query';
+import {
+    CompositeFilterDescriptor, filterBy,
+    toDataSourceRequestString,
+    translateDataSourceResultGroups
+} from '@progress/kendo-data-query';
 import {getIncompleteTraining, getInstructionsWithoutTraining, getProducts, getWorkersWithoutTraining} from './api';
 import {
     IncompleteTrainingDataReport,
@@ -8,7 +12,7 @@ import {
     WorkersWithoutTrainingResult
 } from './models';
 
-import {Grid, GridColumn, GridPageChangeEvent} from "@progress/kendo-react-grid";
+import {Grid, GridColumn, GridFilterChangeEvent, GridPageChangeEvent} from "@progress/kendo-react-grid";
 //import { process, State } from "@progress/kendo-data-query";
 
 import {DropDownList, DropDownListChangeEvent} from "@progress/kendo-react-dropdowns";
@@ -46,8 +50,14 @@ const ReportGrid = () => {
     const [dataIncompleteTrainingGrid, setIncompleteTrainingDataGrid] = useState<IncompleteTrainingDataReport[] | []>([]);
     const [dataWorkersWithoutTrainingGrid, setWorkersWithoutTrainingDataGrid] = useState<WorkersWithoutTrainingResult[] | []>([]);
     const [dataInstructionsWithoutTrainingGrid, setInstructionsWithoutTrainingDataGrid] = useState<InstructionsWithoutTrainingResult[] | []>([]);
-
-
+   
+    const initialFilter: CompositeFilterDescriptor = {
+        logic: "and",
+        filters: [
+            { field: "Number", operator: "contains", value: "" }
+        ]
+    };
+    const [filter, setFilter] = React.useState<CompositeFilterDescriptor>(initialFilter);
     //useEffect(() => {
 
     //    getProducts(`${toDataSourceRequestString(dataState)}`)
@@ -74,6 +84,8 @@ const ReportGrid = () => {
     //            field={item} key={i} />
     //    );
     //});
+    
+    // https://www.telerik.com/kendo-react-ui/components/grid/filtering/
 
     var allColumns = products.length > 0 ? Object.keys(products[0]) : []
     var columnsToShow = allColumns.map((item, i) => <GridColumn width="100px" field={item} key={i}/>);
@@ -173,7 +185,10 @@ const ReportGrid = () => {
 
             {selectedReport.value.id == 2 && dataIncompleteTrainingGrid.length > 0 &&
                 <Grid
-                    data={dataIncompleteTrainingGrid.slice(page.skip, page.take + page.skip)}
+                    data={filterBy(dataIncompleteTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
+                    filterable
+                    filter={filter}
+                    onFilterChange={(e: GridFilterChangeEvent) => setFilter(e.filter)}
                     total={total}
                     skip={page.skip}
                     take={page.take}
@@ -186,7 +201,10 @@ const ReportGrid = () => {
             }
             {selectedReport.value.id == 3 && dataWorkersWithoutTrainingGrid.length > 0 &&
                 <Grid
-                    data={dataWorkersWithoutTrainingGrid.slice(page.skip, page.take + page.skip)}
+                    data={filterBy(dataWorkersWithoutTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
+                    filterable
+                    filter={filter}
+                    onFilterChange={(e: GridFilterChangeEvent) => setFilter(e.filter)}
                     total={total}
                     skip={page.skip}
                     take={page.take}
@@ -201,7 +219,10 @@ const ReportGrid = () => {
 
             {selectedReport.value.id == 4 && dataInstructionsWithoutTrainingGrid.length > 0 &&
                 <Grid
-                    data={dataInstructionsWithoutTrainingGrid.slice(page.skip, page.take + page.skip)}
+                    data={filterBy(dataInstructionsWithoutTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
+                    filterable
+                    filter={filter}
+                    onFilterChange={(e: GridFilterChangeEvent) => setFilter(e.filter)}
                     total={total}
                     skip={page.skip}
                     take={page.take}
