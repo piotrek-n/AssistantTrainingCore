@@ -1,0 +1,173 @@
+﻿@model AssistantTrainingCore.ViewModel.InstructionEditData
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+
+<style>
+        .spinner {
+            width: 100px;
+        }
+
+            .spinner input {
+                text-align: right;
+            }
+
+        .input-group-btn-vertical {
+            position: relative;
+            white-space: nowrap;
+            width: 1%;
+            vertical-align: middle;
+            display: table-cell;
+        }
+
+            .input-group-btn-vertical > .btn {
+                display: block;
+                float: none;
+                width: 100%;
+                max-width: 100%;
+                padding: 8px;
+                margin-left: -1px;
+                position: relative;
+                border-radius: 0;
+            }
+
+                .input-group-btn-vertical > .btn:first-child {
+                    border-top-right-radius: 4px;
+                }
+
+                .input-group-btn-vertical > .btn:last-child {
+                    margin-top: -2px;
+                    border-bottom-right-radius: 4px;
+                }
+
+            .input-group-btn-vertical i {
+                position: absolute;
+                top: 0;
+                left: 4px;
+            }
+    </style>
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-center ">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <h4>Edit Instruction</h4>
+                <hr/>
+                @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+                @Html.HiddenFor(model => model.ID)
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Number, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @*@Html.EditorFor(model => model.Number, new { htmlAttributes = new { @class = "form-control" } })*@
+                        @Html.TextBoxFor(model => model.Number, new {@class = "form-control", @readonly = "readonly"})
+                        @*@Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Name, new {htmlAttributes = new {@class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.Name, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Version, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @*@Html.EditorFor(model => model.Version, new { htmlAttributes = new { @class = "form-control" } })*@
+                        @Html.TextBoxFor(model => model.Version, new {@class = "form-control", @readonly = "readonly"})
+
+                        @Html.ValidationMessageFor(model => model.Version, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="control-label col-md-2"></div>
+                    <div class="col-md-10">
+                        @* @(Html.Kendo().CheckBoxFor(m=>m.Reminder)) *@
+                    </div>
+                </div>
+                <div class="well">
+                    Are you sure you want to change the version? After saving will create a new version of the instruction.
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Version, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+
+                            @(Html.Kendo().NumericTextBox()
+                                  .Name("NewVersion") // The name of the NumericTextBox is mandatory. It specifies the "id" attribute of the widget.
+                                  .Format("#")
+                                  .Value(Model.Version) // Set the value of the NumericTextBox.
+                            )
+
+@*                            <span class="input-group spinner">
+                                @Html.EditorFor(model => model.Version, new {htmlAttributes = new {@class = "form-control", @id = "NewVersion"}})
+                                @Html.ValidationMessageFor(model => model.Version, "", new {@class = "text-danger"})
+                                <div class="input-group-btn-vertical">
+                                    <button class="btn btn-default" type="button">
+                                        <i class="fa fa-caret-up"></i>
+                                    </button>
+                                    <button class="btn btn-default" type="button">
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                </div>
+                            </span>*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="Name"></label>
+                        <div class="col-md-10">
+                            <button type="button" class="btn btn-primary" id="save-event">Change Version</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Items, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @Html.ListBoxFor(x => x.SelectedIds, Model.Items, new {multiple = "multiple", @class = "form-control"})
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                       @Html.ActionLink("Back to List", "Index")
+                       <input type="submit" value="Save" class="btn btn-default"/>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@Html.Hidden("RedirectTo", Url.Action("AddNewVersion", "Instructions", new {id = "ID", version = "VERSION", training = "TRAINING"}))
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $(':checkbox').change(function () {
+            $(this).blur();
+        });
+
+        $('#save-event').on('click',
+            function (evt) {
+                $('#myModal').modal('toggle');
+                var id = $("#ID").val();
+                var version = $("#NewVersion").val();
+                var training = $("#NumberOfTraining").val();
+                var url = $("#RedirectTo").val().replace('ID', id).replace('VERSION', version).replace('TRAINING', training);
+                location.href = url;
+            }
+        );
+
+        $('.spinner .btn:first-of-type').on('click', function () {
+            $('.spinner input').val(parseInt($('.spinner input').val(), 10) + 1);
+        });
+        $('.spinner .btn:last-of-type').on('click', function () {
+            $('.spinner input').val(parseInt($('.spinner input').val(), 10) - 1);
+        });
+    })
+</script>

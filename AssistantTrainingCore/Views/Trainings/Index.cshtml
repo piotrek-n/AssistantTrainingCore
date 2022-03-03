@@ -1,0 +1,408 @@
+﻿@model IEnumerable<AssistantTrainingCore.Models.TrainingGroup>
+
+<script>
+    function test() {
+        $('#myModal').modal('show');
+    }
+</script>
+
+<h3>Szkolenia</h3>
+<div class="row">
+    <div class="col-md-2">
+        <div>
+            <br/>
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Create</button>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Dodaj Szkolenie</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Training Number" name="newTrainingNumber" id="newTrainingNumber">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top: 10px;">
+                            <div class="col-md-8">
+                                <select id="sel" multiple="multiple" class="col-md-12" style="width: 100%; height: auto"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <div style="width: 100%; height: auto;">
+                                    <input type="checkbox" id="searchTermCheckbox"/>
+                                    <label for="searchTerm"> Wszystkie </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+
+                            </div>
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <div id="remainders"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="save-new-training">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2"></div>
+    
+</div>
+<hr>
+@if (User.IsInRole("Administrator") || User.IsInRole("Engineer"))
+{
+    <script>
+        var userAdminOrEngineer = true;
+    </script>
+
+}
+else
+{
+    <script>
+        var useruserAdminOrEngineer = false;
+    </script>
+
+}
+
+@if (User.IsInRole("Administrator"))
+{
+    <script>
+        var userAdmin = true;
+    </script>
+}
+else
+{
+    <script>
+        var userAdmin = false;
+    </script>
+}
+
+<script>
+        var CountIt = 0 
+        function GetCountIt() { 
+            var page = $("#trainingGroup").data("kendoGrid").dataSource.page();
+            var pageSize = $("#trainingGroup").data("kendoGrid").dataSource.pageSize();
+            CountIt++;
+            return (page * pageSize) - pageSize + CountIt 
+        }
+
+        function trainingGroup_DataBound() { 
+                CountIt = 0; $('#trainingGroup').data('kendoGrid').pager.unbind("change").bind('change', function (e) {
+                CountIt = 0
+            })
+        }
+</script>
+
+<div class=" " >
+
+            @(Html.Kendo().Grid<AssistantTrainingCore.Models.TrainingGroup>(Model)
+                .Name("trainingGroup")
+                .ToolBar(t => {t.Search();})
+                .Events(events =>
+                {
+                    events.DataBound("trainingGroup_DataBound"); 
+                })
+                .Columns(columns =>
+                {
+                    columns.Bound("").ClientTemplate("#=GetCountIt()#").Title("Lp.").Width(50);
+                    columns.Bound(c => c.TrainingName.Number).Title("Training Number").Filterable(true).Width(110);
+                    columns.Bound(c => c.Instruction.Number).Title("Instruction Number").Filterable(true).Width(110);
+                    columns.Bound(c => c.Instruction.Version).Title("Version").Filterable(true).Width(110);
+                    columns.Bound(c => c.TrainingName.Number)
+                        .Title("Akcja")
+                        .ClientTemplate(" <span onclick='return getGridUntrained(\"" +  "#=TrainingName.ID#" + "\");' >Untrained </span> <span onclick='return getGridTrained(#=ID#);'>Trained </span>  # if (userAdmin == true) { # <a href='/Trainings/Delete/#=ID#'>Delete</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+                }).Pageable(pager => pager
+                    .PageSizes(true)
+                    .PageSizes(new int[] {20, 50, 100})
+                    .Input(true)
+                    .Info(true)
+                    .PreviousNext(true)
+                    .Refresh(true)
+                )
+@*            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(100)
+                .Read(read => read.Action("MainGridReadBound", "Trainings"))
+            )*@
+                .Navigatable()
+                .Sortable()
+                .Filterable())           
+    
+</div>
+<hr>
+@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.TrainingWorkersGridData>()
+            .Name("trainingWorkersGridData")
+            .ToolBar(t => t.Search())
+            .ToolBar(tools => tools.Excel())
+            .Columns(columns =>
+            {
+                columns.Select().Width(50);
+                columns.Bound("").ClientTemplate("#=GetCountIt()#").Title("Lp.").Width(50);
+                columns.Bound(c => c.WorkerID).Title("WorkerID").ClientTemplate("<span data-name='WorkerID'>#=WorkerID#</span>").Hidden(true).Filterable(true).Width(110);
+                columns.Bound(c => c.TrainingNameId).Title("TrainingNameId").ClientTemplate("<span data-name='TrainingNameId'>#=TrainingNameId#</span>").Hidden(true).Filterable(true).Width(110);
+                columns.Bound(c => c.WorkerFullName).Title("Nazwisko").Filterable(true).Width(30);
+                //
+                columns.Bound(p => p.WorkerFullName)
+                        .Title("Akcja")
+                        .ClientTemplate(" # if (userAdmin == true) { # <a href='Trainings/DeleteWorkerTraining?TrainingNameID=#=TrainingNameId#&WorkerID=#=WorkerID#'>Remove Training</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+    .Navigatable()
+            .Sortable()
+            .Excel(excel => excel
+		        .FileName("Training Workers Export.xlsx")
+		        .Filterable(true)
+		        .ProxyURL(Url.Action("Excel_Export_Save", "Trainings"))
+	        )
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Model(model => model.Id(p => p.TrainingNameId))
+                .PageSize(200)
+                .Read(read => read.Action("PlayerStats_Read_Bound", "Trainings").Data("TrainingNameId"))
+            ).AutoBind(false)
+)
+
+<div class="row top10">
+
+</div>
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-2"></div>
+    <div class="col-md-2">
+        @if (User.IsInRole("Administrator"))
+        {
+            <input type="button" class="btn btn-info col-md-10" value="Remove Training" id="RemoveTrainingToWorkerWorkersGrid" />
+        }
+    </div>
+    <form id="myform">
+        <div class="col-md-2">
+            <span>
+                <input type="hidden" disabled id="TrainingNumber" name="TrainingNumber" class="form-control hidden" value="" required>
+            </span>
+        </div>
+@*        <div class="col-md-2">
+            <span id="sandbox-container">
+                <input type="text" placeholder="Date" id="TrainingDate" name="field2" class="form-control" required>
+            </span>
+        </div>*@
+
+          <div class="input-group mb-4">
+@*            <input class="form-control" type="text" placeholder="training date" id="TrainingDate">
+            <div class="input-group-append">
+              <span class="fa fa-calendar"></span>
+            </div>*@
+                    @(Html.Kendo().DatePicker()
+              .Name("TrainingDate")
+              .Value(DateTime.Now.Date.ToShortDateString())
+              .Culture("pl-PL")
+              .HtmlAttributes(new { style = "width: 100%", title = "datepicker" })
+        )
+          </div>
+    </form>
+        <div class="col-md-2">
+            <input type="button" class="btn btn-info col-md-10" value="Complet Training" id="SaveTrainingWorkersGrid" />
+        </div>
+
+</div>
+
+<script>
+
+var trainingNameId = 0;
+var status = '';
+function TrainingNameId() {
+    return {
+        trainingNameId: trainingNameId,
+        term: status, 
+    }
+}
+
+function getGridUntrained(id){
+    trainingNameId = id;
+    status = 'untrained';
+    $('#TrainingNumber').val(id);
+    var grid = $("#trainingWorkersGridData").data("kendoGrid");
+    grid.dataSource.read();
+}
+
+function getGridTrained(id){
+    trainingNameId = id;
+    status = 'trained';
+    $('#TrainingNumber').val(id);
+    var grid = $("#trainingWorkersGridData").data("kendoGrid");
+    grid.dataSource.read();
+}
+
+function selectAll() {
+    $(':checkbox').prop('checked', true);
+}
+    
+
+function unselectAll() {
+    $(':checkbox').prop('checked', false);
+}
+
+</script>
+
+
+<script>
+    //$("#TrainingDate").datepicker();
+</script>
+<script src="~/js/training.js"></script>
+
+
+@*<div class="row top10"></div>
+<a href="@Url.Action("Excel", "Training")" class="btn btn-default">
+    Export
+    <span class="glyphicon" aria-hidden="true"></span>
+</a>
+<button type="button" onclick="selectAll()" class="btn btn-default">Select All</button>
+<button type="button" onclick="unselectAll()" class="btn btn-default">Unselect All</button>
+@(
+    Html.Grid(Model).Named("TrainingWorkersGrid")
+        .Columns(columns =>
+        {
+            columns.Add()
+            .Encoded(false)
+            .Sanitized(false)
+            .SetWidth(30)
+            .RenderValueAs(f => index(f));
+
+            columns.Add(f => f.WorkerID, true);
+            columns.Add(f => f.TrainingNameId, true);
+            columns.Add(f => f.WorkerFullName).Titled("Nazwisko").Sortable(true).Filterable(true).SetWidth(110);
+            //columns.Add(f => f.WorkerLastName).Titled("Nazwisko").Sortable(true).Filterable(true).SetWidth(110);
+            //columns.Add(f => f.WorkerFirstMidName).Titled("Imię").Sortable(true).Filterable(true).SetWidth(110);
+            columns.Add()
+                .Encoded(false)
+                .Titled("")
+                .Sanitized(false)
+                .SetWidth(30)
+                .RenderValueAs(o => Html.CheckBox("checked", (o.DateOfTraining == null ? false : true), new { @class = "check-item", ID = "trained" }));
+
+            columns.Add()
+            .Encoded(false)
+            .Sanitized(false)
+            .SetWidth(30)
+            .RenderValueAs(f => Edit(f.TrainingNameId,f.WorkerID));
+        })
+        .Sortable()
+        .WithPaging(10))
+<div class="row top10">
+
+</div>
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-2"></div>
+    <div class="col-md-2">
+        @if (User.IsInRole("Administrator"))
+        {
+            <input type="button" class="btn btn-info col-md-10" value="Remove Training" id="RemoveTrainingToWorkerWorkersGrid" />
+        }
+    </div>
+    <form id="myform">
+        <div class="col-md-2">
+            <span>
+                <input type="text" placeholder="Training number" disabled id="TrainingNumber" name="field1" class="form-control hidden" value="@TrainingNumber" required>
+            </span>
+        </div>
+        <div class="col-md-2">
+            <span id="sandbox-container">
+                <input type="text" placeholder="Date" id="TrainingDate" name="field2" class="form-control" required>
+            </span>
+        </div>
+    </form>
+        <div class="col-md-2">
+            <input type="button" class="btn btn-info col-md-10" value="Complet Training" id="SaveTrainingWorkersGrid" />
+        </div>
+
+</div>
+
+<script>
+function selectAll() {
+    $(':checkbox').prop('checked', true);
+}
+    
+
+function unselectAll() {
+    $(':checkbox').prop('checked', false);
+}
+</script>
+
+@helper Edit(int TrainingNameId, int WorkerId)
+{
+
+    if (User.IsInRole("Administrator"))
+    {
+         @Html.ActionLink("Delete", "DeleteWorkerTraining", new { TrainingNameID = TrainingNameId, WorkerID = WorkerId })
+    }
+}
+
+@helper index(AssistantTraining.ViewModel.TrainingWorkersGridData item)
+{
+
+object column;
+object dir;
+int index = 0;
+
+
+    index = Model.GridItems.ToList().FindIndex(x => x.WorkerID == item.WorkerID) + 1;
+
+
+    @Html.Label(index.ToString())
+}*@
+
+
+
+@* <div class="row" id="refGrid"> *@
+@*     @Html.Action("GetGrid") *@
+@* </div> *@
+@* <h3>Workers</h3> *@
+@* <div class="row" id="refWorkerGrid"> *@
+@*     @Html.Action("GetWorkerGrid") *@
+@* </div> *@
+@* *@
+@* @section scripts { *@
+@*     @Scripts.Render("~/bundles/jqueryval") *@
+@*     @Scripts.Render("~/bundles/gridmvc") *@
+@*     @Scripts.Render("~/bundles/typeahead") *@
+@* *@
+@*     <link href="~/Content/bootstrap-datepicker3.min.css" rel="stylesheet" /> *@
+@*     <script src="~/Scripts/bootstrap-datepicker.min.js"></script> *@
+@*     <script src="~/Scripts/locales/bootstrap-datepicker.pl.min.js"></script> *@
+@* *@
+@* *@
+@* *@
+@*     <link href="~/Content/css/s2/select2.min.css" rel="stylesheet" /> *@
+@*     <script src="~/Scripts/select2.min.js"></script> *@
+@*     <link href="~/Content/css/s2/s2-docs.css" rel="stylesheet" /> *@
+@* *@
+@*     @Scripts.Render("~/bundles/application/Training") *@
+@* } *@

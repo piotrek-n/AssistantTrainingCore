@@ -1,0 +1,69 @@
+﻿@model AssistantTrainingCore.ViewModel.WorkerViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-center ">
+        <section class="col-4">
+        <form method="post" enctype="multipart/form-data" asp-controller="Workers" asp-action="Create">
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <h4>Create Worker</h4>
+                <hr/>
+                @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+                <div class="form-group">
+                    <label asp-for="LastName" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <input asp-for="LastName" class="form-control"/>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="FirstMidName" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <input asp-for="FirstMidName" class="form-control"/>
+                        <span asp-validation-for="FirstMidName" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="Tag" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <input asp-for="Tag" class="form-control"/>
+                        <span asp-validation-for="Tag" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AvailableGroups, htmlAttributes: new {@class = "control-label col-md-10"})
+                    <div class="col-md-10">
+
+
+                        @(Html.Kendo().CheckBoxGroup()
+                            .Name("CheckBoxGroupValue")
+                            .Value(Model?.CheckBoxGroupValue)
+                            .Items(i =>
+                                {
+                                    foreach (var l in Model.ItemsList)
+                                    {
+                                        i.Add().Label(l.Label).Value(l.Value);
+                                    }
+                                })
+                        )
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Create" class="btn btn-default"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+        </section>
+</div>
+</div>

@@ -1,0 +1,64 @@
+﻿@model IEnumerable<AssistantTrainingCore.ViewModel.AccountIndexData>
+
+<h2>Users</h2>
+<p>
+@if (User.IsInRole("Administrator"))
+{
+    <a href="@Url.Action("Create", "Account")" class="btn btn-primary" role="button">
+        Create
+        <span class="glyphicon" aria-hidden="true"></span>
+    </a>
+}
+</p>
+
+@if (User.IsInRole("Administrator"))
+{
+    <script>
+        var userAdmin = true;
+    </script>
+
+}
+else
+{
+    <script>
+        var userAdmin = false;
+    </script>
+}
+
+@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.AccountIndexData>()
+            .Name("usersGroup")
+            .ToolBar(t => t.Search())
+            .Columns(columns =>
+            {
+                 columns.Bound(c => c.UserName).Title("Nazwa").Filterable(true).Width(110);
+                 columns.Bound(c => c.RolesInString).Title("Roles").Filterable(true).Width(110);
+
+                columns.Bound(c => c.UserName)
+                        .Title("Akcja")
+                        .ClientTemplate(" # if (userAdmin == true) { # <a href='/Account/Edit/#=ID#'>Edit</a> # } # # if (userAdmin == true) { # <a href='/Account/Delete/#=ID#'>Delete</a>  # } # ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+                .Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] { 20,50,100 })
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+              )
+            .Navigatable()
+            .Sortable()
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+
+                .Read(read => read.Action("SelectUsers", "Account"))
+            )
+)
+

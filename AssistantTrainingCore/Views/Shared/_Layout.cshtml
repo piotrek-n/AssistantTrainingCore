@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AssistantTrainingCore</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+@*	<link href="https://cdn.kendostatic.com/2021.3.1207/styles/kendo.common-bootstrap.min.css" rel="stylesheet" type="text/css" />
+	<link href="https://cdn.kendostatic.com/2021.3.1207/styles/kendo.bootstrap-main.min.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/jquery.min.js"></script>
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/jszip.min.js"></script>
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/kendo.all.min.js"></script>
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/kendo.aspnetmvc.min.js"></script>*@
+
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css" rel="stylesheet" type="text/css">
+
+     <link href="https://cdn.kendostatic.com/2021.3.1207/styles/kendo.bootstrap-v4.min.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/jquery.min.js"></script>
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/jszip.min.js"></script>
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/kendo.all.min.js"></script>
+	<script src="https://cdn.kendostatic.com/2021.3.1207/js/kendo.aspnetmvc.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.11.0/jquery.typeahead.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.11.0/jquery.typeahead.min.js"></script>
+
+
+    <script src="https://kendo.cdn.telerik.com/2021.3.1207/js/cultures/kendo.culture.pl-PL.min.js"></script>
+
+@*    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.pl.min.js"></script>*@
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container justify-content-end">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Workers" asp-action="Index">Workers</a>
+                @if (User.IsInRole("Administrator"))
+                {
+                <a class="navbar-brand" asp-area="" asp-controller="Groups" asp-action="Index">Groups</a>
+                }
+                <a class="navbar-brand" asp-area="" asp-controller="Instructions" asp-action="Index">Instructions</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Trainings" asp-action="Index">Trainings</a>
+                @if (User.IsInRole("Administrator") || User.IsInRole("Operator"))
+                {
+                    <a class="navbar-brand" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
+                }
+                @if (User.IsInRole("Administrator"))
+                {
+                <a class="navbar-brand" asp-area="" asp-controller="Account" asp-action="Index">Users</a>
+                }
+
+                        <div class="d-lg-block d-none dropdown">
+            <a class="nav-link dropdown-toggle icon-globe" href="#" id="navbarDropdownMenuLink78" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-globe" aria-hidden="true"></i> Language</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink78">
+                <a class="dropdown-item" asp-controller="Home" asp-action="ChangeLanguage" asp-route-culture="pl-PL"><span class="flag-icon flag-icon-pl"></span> Polski</a> 
+                <a class="dropdown-item" asp-controller="Home" asp-action="ChangeLanguage" asp-route-culture="en-US"><span class="flag-icon flag-icon-us"></span> English</a>
+
+            </div>
+        </div> 
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container"> 
+            &copy; 2022 - Assistant Training 2.0
+        </div>
+    </footer>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

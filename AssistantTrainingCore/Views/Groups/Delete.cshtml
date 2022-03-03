@@ -1,0 +1,43 @@
+﻿@model AssistantTrainingCore.Models.Group
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h3>Delete Group </h3>
+
+<h4>Czy na pewno chcesz usunąć?</h4>
+<hr/>
+
+<div class="container">
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.GroupName)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.GroupName)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.TimeOfCreation)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.TimeOfCreation)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.TimeOfModification)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.TimeOfModification)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.Tag)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.Tag)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right"></dt>
+        <dd class="col-sm-9 text-left">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-actions no-color">
+                    <input type="submit" value="Delete" class="btn btn-default"/> |
+                    @Html.ActionLink("Back to List", "Index")
+                </div>
+            }
+        </dd>
+    </dl>
+</div>

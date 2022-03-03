@@ -1,0 +1,87 @@
+﻿@model AssistantTrainingCore.ViewModel.InstructionDetailsData
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div class="row">
+<div class="col-12 d-flex justify-content-center ">
+    <div>
+        <h3>Instructions Details</h3>
+        <hr/>
+        <a href="@Url.Action("Excel", "Instructions", new {id = ViewData["IdInstruction"]})" class="btn btn-primary" role="button">
+            Export to Excel
+            <span class="glyphicon" aria-hidden="true"></span>
+        </a>
+        <dl class="dl-horizontal">
+            <dt>
+                Nazwa
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => Model.instructionVsTrainingList.First().InstructionName)
+            </dd>
+            <dt>
+                Numer
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => Model.instructionVsTrainingList.First().InstructionNumber)
+            </dd>
+            <dt>
+                Wersja
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => Model.instructionVsTrainingList.First().InstructionVersion)
+            </dd>
+        </dl>
+        @(Html.Kendo().Grid(Model.GroupWithNumbers.ToList())
+            .Name("GroupWithNumbers")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
+                columns.Bound(c => c.GroupName).Title("Grupy").Filterable(true).Width(10);
+            }).Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] {20, 50, 100})
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+            )
+            .Navigatable()
+            .Sortable()
+            .Filterable())
+
+        @(Html.Kendo().Grid(Model.instructionVsTrainingList.ToList())
+            .Name("InstructionVsTrainingList")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
+                columns.Bound(c => c.WorkerFullName).Title("Nazwisko").Filterable(true).Width(110);
+                columns.Bound(c => c.WorkerIsSuspendedDesc).Title("Zawieszony").Filterable(true).Width(10);
+                columns.Bound(c => c.DateOfTran).Title("Data szkolenia").Filterable(true).Width(110);
+                columns.Bound(c => c.TrainingName).Title("Numer szkolenia").Filterable(true).Width(110);
+            }).Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] {20, 50, 100})
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+            )
+            .Navigatable()
+            .Sortable()
+            .Filterable())
+
+
+        <p>
+            @Html.ActionLink("Back to List", "Index")
+        </p>
+    </div>
+</div>
+
+
+@*@section scripts {
+    @Scripts.Render("~/bundles/application/InstructionDetails")
+}*@</div>

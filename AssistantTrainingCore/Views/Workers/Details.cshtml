@@ -1,0 +1,41 @@
+﻿@model AssistantTrainingCore.ViewModel.WorkerViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div class="container">
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.LastName)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.LastName)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.FirstMidName)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.FirstMidName)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.Tag)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.Tag)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">@Html.DisplayNameFor(model => model.IsSuspend)</dt>
+        <dd class="col-sm-9 text-left">@Html.DisplayFor(model => model.IsSuspend)</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3 text-right">Grupy:</dt>
+        <dd class="col-sm-9 text-left"></dd>
+    </dl>
+
+    @foreach (var item in Model.SelectedGroups)
+    {
+        <dl class="row">
+            <dt class="col-sm-3 text-right"></dt>
+            <dd class="col-sm-9 text-left">@item.GroupName</dd>
+        </dl>
+    }
+
+    <dl class="row">
+        @Html.ActionLink("Edit", "Edit", new {id = Model.ID}) |
+        @Html.ActionLink("Back to List", "Index")
+    </dl>
+</div>

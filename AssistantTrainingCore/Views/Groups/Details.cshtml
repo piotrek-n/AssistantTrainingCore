@@ -1,0 +1,99 @@
+﻿@model AssistantTrainingCore.ViewModel.GroupDetails
+
+@{
+    ViewBag.Title = "Details";
+    var instr = Model.Instructions.AsEnumerable();
+
+}
+<script>
+        var CountIt = 0 
+        function GetCountIt() { 
+            var page = $("#gridGroupDetails").data("kendoGrid").dataSource.page();
+            var pageSize = $("#gridGroupDetails").data("kendoGrid").dataSource.pageSize();
+            CountIt++;
+            return (page * pageSize) - pageSize + CountIt 
+        }
+
+        function YourGrid_DataBound() { 
+                CountIt = 0; $('#gridGroupDetails').data('kendoGrid').pager.unbind("change").bind('change', function (e) {
+                CountIt = 0
+            })
+        }
+
+    function changeNewLine(text) {
+        if(text == null) {
+            return  '<br>';
+        }
+        var regexp = new RegExp('\n', 'g');
+        return text.replace(regexp, '<br>');
+    }
+</script>
+<div class="row">
+    <div class="col-12 d-flex justify-content-center ">
+    <h4>Group Details: @Model.GroupName</h4>
+    <hr />
+
+</div>
+</div>
+
+@if (instr != null)
+{
+@*    @Html.Grid(instr).Columns(columns =>
+    {
+        columns.Add(foo => foo.Name).Titled("Nazwa").SetWidth(110);
+        columns.Add(foo => foo.Number).Titled("Numer").SetWidth(110);
+        columns.Add(foo => foo.Version).Titled("Wersja").SetWidth(110);
+        columns.Add()
+             .Encoded(false)
+             .Sanitized(false)
+             .SetWidth(30)
+             .RenderValueAs(foo => Edit(foo.ID));
+
+    }).WithPaging(50);*@
+
+    @(Html.Kendo().Grid(instr)
+            .Name("gridGroupDetails")
+            .ToolBar(t => t.Search())
+            .Events(events =>
+            {
+                events.DataBound("YourGrid_DataBound"); 
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.Name).Title("Nazwa").Filterable(true).Width(10);
+                columns.Bound(c => c.Number).Title("Numer").Filterable(true).Width(110);
+                columns.Bound(c => c.Version).Title("Wersja").Filterable(true).Width(110);
+
+                columns.Bound(c => c.ID)
+                        .Title("Akcja")
+                        .ClientTemplate(" <a href='/Groups/TrainedUsers/#=ID#'>Details</a> ")
+                        .HtmlAttributes(new { style = "text-align: center;"})
+                        .Width(100)
+                        .Sortable(false)
+                        .Filterable(false);
+
+            })
+                .Pageable(pager => pager
+                .PageSizes(true)
+                .PageSizes(new int[] { 20,50,100 })
+                .Input(true)
+                .Info(true)
+                .PreviousNext(true)
+                .Refresh(true)
+                .PageSizes(true)
+              )
+            .Navigatable()
+            .Sortable()
+            .Filterable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+                .Model(model => model.Id(p => p.ID))
+                .Read(read => read.Action("SelectGroupDetails", "Groups"))
+            )
+)
+}
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) | @Html.ActionLink("Back to List", "Index")
+</p>
