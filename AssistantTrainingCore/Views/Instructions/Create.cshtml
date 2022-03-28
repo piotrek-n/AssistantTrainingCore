@@ -1,4 +1,5 @@
-﻿@model AssistantTrainingCore.ViewModel.InstructionIndexData
+﻿@using Kendo.Mvc.UI
+@model AssistantTrainingCore.ViewModel.InstructionIndexData
 
 @{
     ViewBag.Title = "Create";
@@ -46,25 +47,20 @@
                     Wersja Papierowa
 
                     <div class="col-md-10">
-                        @(Html.Kendo().CheckBoxFor(m => m.Reminder))
+                           @(Html.Kendo().CheckBoxFor(m=>m.Reminder).Label("Reminder"))
+                           
                     </div>
                 </div>
                 <div style="display:inline">
                     <div class="form-group col-md-12">
                         @Html.LabelFor(model => model.ItemsList, htmlAttributes: new {@class = "control-label col-md-12"})
-                        <div class="col-md-10">
-                            @(Html.Kendo().CheckBoxGroup()
-                                .Name("CheckBoxGroupValue")
-                                .Value(Model.CheckBoxGroupValue)
-                                .Items(i =>
-                                {
-                                    foreach (var l in Model.ItemsList)
-                                    {
-                                        i.Add().Label("<span style=\"border-bottom-width: 1px solid #000;\">" + l.Label /* +"<a style=\"float:right;\" href=\"#\" onClick=\"showInstructionWorkers('" + l.Label + "')\"> Pracownicy </a><span>"*/).Encoded(false).Enabled(true).Value(l.Value);
-                                    }
-                                })
-                                )
-                        </div>
+            <div class="col-md-10">
+                @(Html.Kendo().CheckBoxGroup()
+                    .Name("CheckBoxGroupValue")
+                    .Value(Model.CheckBoxGroupValue)
+                    .Items(i => { foreach (var l in Model.ItemsList) { i.Add().Label("<span style=\"border-bottom-width: 1px solid #000;\">" + l.Label  /* +"<a style=\"float:right;\" href=\"#\" onClick=\"showInstructionWorkers('" + l.Label + "')\"> Pracownicy </a><span>"*/).Encoded(false).Enabled(true).Value(l.Value); } })
+                        )
+            </div>
                     </div>
                     <div class="form-group col-md-6">
                     </div>
@@ -96,6 +92,7 @@
 
 <style>
 </style>
+
 
 <script>
     var oldPageSize = 0;

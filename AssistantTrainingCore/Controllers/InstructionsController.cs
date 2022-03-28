@@ -151,6 +151,16 @@ namespace AssistantTrainingCore.Controllers
                 return NotFound();
             }
             ViewData["IdInstruction"] = id;
+            var instructionGroupViewModel = GetInstructionDetailsModel(id, instruction);
+            if (instructionGroupViewModel == null)
+            {
+                return NotFound();
+            }
+            return View(instructionGroupViewModel);
+        }
+
+        private InstructionDetailsData GetInstructionDetailsModel(int? id, Instruction? instruction)
+        {
             var instructionGroupViewModel = new InstructionDetailsData();
             var idsGroups = new List<int>();
 
@@ -223,11 +233,7 @@ namespace AssistantTrainingCore.Controllers
                        }).ToList();
 
             instructionGroupViewModel.instructionVsTrainingList = lst.ToList();
-            if (instructionGroupViewModel == null)
-            {
-                return NotFound();
-            }
-            return View(instructionGroupViewModel);
+            return instructionGroupViewModel;
         }
 
         // GET: Instructions/Create
@@ -576,29 +582,8 @@ namespace AssistantTrainingCore.Controllers
             {
                 return BadRequest();
             }
-
-            var instructionVsTrainingList =
-                (from w in db.Workers
-                 join wg in db.GroupWorkers on w.ID equals wg.WorkerId
-                 join gi in db.InstructionGroups on wg.GroupId equals gi.GroupId
-                 join i in db.Instructions on gi.InstructionId equals i.ID
-                 join t in db.Trainings
-                     on new { InstructionId = i.ID, wg.WorkerId }
-                     equals new { t.InstructionId, t.WorkerId } into t_join
-                 from t in t_join.DefaultIfEmpty()
-                 where i.ID == id
-                 select new InstructionVsTrainingData
-                 {
-                     WorkerLastName = w.LastName,
-                     WorkerFirstMidName = w.FirstMidName,
-                     WorkerFullName = w.LastName + " " + w.FirstMidName,
-                     InstructionName = i.Name,
-                     GroupId = gi.GroupId,
-                     InstructionVersion = i.Version,
-                     InstructionNumber = i.Number,
-                     DateOfTraining = (DateTime?)t.DateOfTraining,
-                     TrainingName = t.TrainingName.Number
-                 }).ToList();
+            var instruction = db.Instructions.Find(id);
+            var details = GetInstructionDetailsModel(id, instruction);
 
 
             try
@@ -607,7 +592,7 @@ namespace AssistantTrainingCore.Controllers
                 using (ExcelPackage package = new ExcelPackage(content))
                 {
                     ExcelWorksheet ws = package.Workbook.Worksheets.Add("Trainings");
-                    ws.Cells["A1"].LoadFromCollection(instructionVsTrainingList, true);
+                    ws.Cells["A1"].LoadFromCollection(details.instructionVsTrainingList, true);
 
                     package.Save();
                 }

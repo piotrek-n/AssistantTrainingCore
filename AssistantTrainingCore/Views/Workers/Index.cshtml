@@ -6,22 +6,27 @@
 @{
     ViewBag.Title = "Workers";
 }
-
+<div class="container ">
+  <div class="p-2">
 <h2>Workers</h2>
 
 <p>
     @if (User.IsInRole("Administrator"))
     {
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-1">
                 <a href="@Url.Action("Create", "Workers")" class="btn btn-primary" role="button">
                     Create
                     <span class="glyphicon" aria-hidden="true"></span>
                 </a>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-1">
+                    @using (Html.BeginForm("GenerateDocument", "Workers"))
+    {
+        <input type="submit" class="k-button k-button-solid-primary k-button-solid k-button-rectangle k-button-md k-rounded-md wide-btn" name="Submit" value="Export" />
+    }
             </div>
-            <div class="col-md-4">
+            <div class="col-md-10">
 
             </div>
         </div>
@@ -67,7 +72,16 @@ else
             function YourGrid_DataBound() { 
                 CountIt = 0; $('#workersGrid').data('kendoGrid').pager.unbind("change").bind('change', function (e) {
                     CountIt = 0
-                })
+                });
+
+
+                var grid = this;
+                grid.tbody.find('>tr').each(function () {
+                    var dataItem = grid.dataItem(this);
+                    if (dataItem.IsSuspend) {
+                        $(this).addClass('bgRed');
+                    }});
+
             }
 
     function changeNewLine(text) {
@@ -78,10 +92,13 @@ else
         return text.replace(regexp, '<br>');
     }
 </script>
-@(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.WorkerGroupViewModel>()
+</div>
+
+  <div class="p-2">
+      @(Html.Kendo().Grid<AssistantTrainingCore.ViewModel.WorkerGroupViewModel>()
             .Name("workersGrid")
             .ToolBar(t => t.Search())
-            .ToolBar(tools => tools.Excel())
+           @* .ToolBar(tools => tools.Excel())*@
                    .Events(events =>
        {
           events.DataBound("YourGrid_DataBound"); 
@@ -120,6 +137,7 @@ else
 		        .FileName("Workers Export.xlsx")
 		        .Filterable(true)
 		        .ProxyURL(Url.Action("Excel_Export_Save", "Workers"))
+                .ForceProxy(true)
 	        )
             .Filterable()
             .DataSource(dataSource => dataSource
@@ -129,6 +147,9 @@ else
                 .Read(read => read.Action("SelectWorkers", "Workers"))
             )
             )
+  </div>
+</div>
+
 
 
 

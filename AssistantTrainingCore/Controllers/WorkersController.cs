@@ -34,6 +34,45 @@ namespace AssistantTrainingCore.Controllers
             return Json(GetIndexData().ToDataSourceResult(request));
         }
 
+        /// <summary>
+        /// https://demos.telerik.com/aspnet-core/spreadstreamprocessing
+        /// </summary>
+        /// <param name="rowsCount"></param>
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GenerateDocument(int rowsCount, string fileType)
+        {
+            var workers =
+                 (from w in db.Workers
+                  join gw in db.GroupWorkers on w.ID equals gw.WorkerId
+                  join g in db.Groups on gw.GroupId equals g.ID
+                  orderby w.LastName, w.FirstMidName
+                  select new { FullName = w.FirstMidName + " " + w.LastName, w.IsSuspend, g.GroupName }
+                 ).ToList();
+
+            try
+            {
+                MemoryStream content = new MemoryStream();
+                using (ExcelPackage package = new ExcelPackage(content))
+                {
+                    ExcelWorksheet ws = package.Workbook.Worksheets.Add("workers");
+                    ws.Cells["A1"].LoadFromCollection(workers, true);
+
+                    package.Save();
+                }
+
+                content.Position = 0;
+
+                return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
         public ActionResult Excel_Export_Read([DataSourceRequest] DataSourceRequest request)
         {
             var workers =
@@ -43,6 +82,7 @@ namespace AssistantTrainingCore.Controllers
                     orderby w.LastName, w.FirstMidName
                     select new {FullName = w.FirstMidName + " " + w.LastName, w.IsSuspend, g.GroupName}
                 ).ToList();
+
             return Json(workers.ToDataSourceResult(request));
         }
 

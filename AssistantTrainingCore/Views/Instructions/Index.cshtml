@@ -39,6 +39,8 @@ else
         return text.replace(regexp, '<br>');
     }
 </script>
+<div class="container ">
+  <div class="p-2">
 <h2>Instructions</h2>
 
 <p>
@@ -85,7 +87,7 @@ else
             })
                 .Pageable(pager => pager
                 .PageSizes(true)
-                .PageSizes(new int[] { 20,50,100 })
+                .PageSizes(new int[] { 200,600 })
                 .Input(true)
                 .Info(true)
                 .PreviousNext(true)
@@ -97,8 +99,10 @@ else
             .Filterable()
             .DataSource(dataSource => dataSource
                 .Ajax()
-                .PageSize(20)
+                .PageSize(600)
 
                 .Read(read => read.Action("Select", "Instructions"))
             )
 )
+</div>
+</div>
