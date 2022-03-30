@@ -27,5 +27,7 @@ namespace AssistantTrainingCore.ViewModel
 
         [DisplayName("Role")]
         public IEnumerable<SelectListItem> Items { get; set; }
+
+        public string Message { get; set; }
     }
 }

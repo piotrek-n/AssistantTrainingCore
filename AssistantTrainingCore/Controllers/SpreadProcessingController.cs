@@ -129,7 +129,7 @@ public class SpreadProcessingController : Controller
                     worksheet.Cells[currentRow, 0].SetValue(product.DT_RowId);
                     worksheet.Cells[currentRow, IndexColumnQuantity].SetValue(product.Name);
                     worksheet.Cells[currentRow, IndexColumnUnitPrice].SetValue(product.Number);
-                    worksheet.Cells[currentRow, IndexColumnUnitPrice].SetValue(product.Version);
+                    worksheet.Cells[currentRow, IndexColumnSubTotal].SetValue(product.Version);
 
                     currentRow++;
                 }

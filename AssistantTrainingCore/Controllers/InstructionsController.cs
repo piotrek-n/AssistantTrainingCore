@@ -71,24 +71,14 @@ namespace AssistantTrainingCore.Controllers
                                     ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
                                     maxVersion = g.Max(x => x.Version)
                                 }).ToList();
-
-            //var newInstructions =
-            //    (from i in db.Instructions
-            //     group i by i.Number
-            //        into groupedI
-            //     let maxVersion = groupedI.Max(v => v.Version)
-            //     select new InstructionLatestVersion
-            //     {
-            //         Key = groupedI.Key,
-            //         maxVersion = maxVersion
-            //         ,ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
-            //     }).AsEnumerable();
+            
 
 
             var test = db.Instructions.ToList();
 
             var allInstructions =
                 db.Instructions.ToList().Where(x => newInstructions.Any(ni => ni.ID == x.ID)).OrderByDescending(ins => ins.TimeOfCreation).ToList();
+            
             var groups = workerRepository.GetAllGroups();
 
             var lstInstructionGroups = new List<InstructionIndexData>();
@@ -129,8 +119,6 @@ namespace AssistantTrainingCore.Controllers
                 lstInstructionGroups.Add(instructioGroup);
             }
             var result = lstInstructionGroups.ToDataSourceResult(request);
-            //result.Total = total;
-
             return Json(result);
         }
 
@@ -343,6 +331,7 @@ namespace AssistantTrainingCore.Controllers
             instructionGroupViewModel.Name = instruction.Name;
             instructionGroupViewModel.Version = instruction.Version;
             instructionGroupViewModel.Number = instruction.Number;
+            instructionGroupViewModel.Reminder = instruction.Reminder;
 
             instructionGroupViewModel.SelectedIds =
                 (from InstructionGroups in db.InstructionGroups

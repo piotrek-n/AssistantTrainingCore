@@ -38,5 +38,8 @@ namespace AssistantTrainingCore.ViewModel
 
         [DisplayName("Grupy")]
         public IEnumerable<SelectListItem> Items { get; set; }
+        
+        [DisplayName("Wersja Papierowa")]
+        public bool Reminder { get; set; }
     }
 }

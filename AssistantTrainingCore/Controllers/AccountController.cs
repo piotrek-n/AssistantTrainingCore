@@ -138,7 +138,7 @@ namespace AssistantTrainingCore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(UserCreateData userVM)
         {
-            if (ModelState.IsValid)
+            if (!string.IsNullOrWhiteSpace(userVM.Email)  && !string.IsNullOrEmpty(userVM.Name))
             {
                 var user = db.Users.FirstOrDefault(u => u.UserName == userVM.Name);
                 if (user != null) //chk for dupes
@@ -159,7 +159,6 @@ namespace AssistantTrainingCore.Controllers
 
                     if (result.Succeeded)
                     {
-
                         var oldRoleName = _userManager.GetRolesAsync(user).Result.First();
                         var newRoleName = db.Roles.SingleOrDefault(predicate: r => r.Id == userVM.SelectedId).Name;
 
@@ -186,7 +185,6 @@ namespace AssistantTrainingCore.Controllers
             return View(user);
         }
 
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
@@ -199,6 +197,12 @@ namespace AssistantTrainingCore.Controllers
 
         public ActionResult Create()
         {
+            var appUser = CreateUserModel(string.Empty);
+            return View(appUser);
+        }
+
+        private UserCreateData CreateUserModel(string message)
+        {
             var roles = db.Roles.ToList();
             var user = new ApplicationUser();
             var appUser = new UserCreateData();
@@ -207,7 +211,8 @@ namespace AssistantTrainingCore.Controllers
                 Value = r.Id,
                 Text = r.Name
             });
-            return View(appUser);
+            appUser.Message = message;
+            return appUser;
         }
 
         [HttpPost]
@@ -222,27 +227,28 @@ namespace AssistantTrainingCore.Controllers
                 {
                     if (!db.Users.Any(u => u.UserName == userVM.Name))
                     {
-                        var users = db.Users;
-                        if (!db.Users.Any(u => u.UserName == userVM.Name))
+                        var done = await _userManager.CreateAsync(new IdentityUser
                         {
-                            var done = await _userManager.CreateAsync(new IdentityUser
-                            {
-                                UserName = userVM.Name,
-                                Email = userVM.Email
-                            }, userVM.Password);
+                            UserName = userVM.Name,
+                            Email = userVM.Email
+                        }, userVM.Password);
 
-                            if (done.Succeeded)
-                            {
-                                await _userManager.AddToRoleAsync(_userManager.Users.Where(u => u.UserName == userVM.Name).First(), selectedRole.Name);
-                            }
-                            else
-                            {
-                                return RedirectToAction("Create");
-                            }
+                        if (done.Succeeded)
+                        {
+                            await _userManager.AddToRoleAsync(_userManager.Users.Where(u => u.UserName == userVM.Name).First(), selectedRole.Name);
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            return View("Create", CreateUserModel(done.Errors.FirstOrDefault()?.Description));
                         }
                     }
+                    else
+                    {
+                        return View("Create", CreateUserModel("User already exist"));
+                    }
                 }
-                return RedirectToAction("Create");
+                return View("Create", CreateUserModel("Select role"));
             }
             return RedirectToAction("Create");
         }

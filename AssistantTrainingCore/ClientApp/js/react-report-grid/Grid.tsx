@@ -99,8 +99,9 @@ const ReportGrid = () => {
         setSelectedReport({
             value: event.target.value,
         });
-
+        debugger;
         switch (event.target.value.id) {
+          
             case 2:
                 getIncompleteTraining(`${toDataSourceRequestString(initialDataState)}`, event.target.value.id)
                     .then(incompleteTraining => {
@@ -112,22 +113,23 @@ const ReportGrid = () => {
                     });
                 break;
             case 3:
-                getWorkersWithoutTraining(`${toDataSourceRequestString(initialDataState)}`, event.target.value.id)
-                    .then(workersWithoutTraining => {
-                        console.log(workersWithoutTraining);
-                        
-                        setTotal(workersWithoutTraining.Total);
-                        setWorkersWithoutTrainingDataGrid(workersWithoutTraining.Data);
-
-                    });
-                break;
-            case 4:
                 getInstructionsWithoutTraining(`${toDataSourceRequestString(initialDataState)}`, event.target.value.id)
                     .then(instructionsWithoutTraining => {
                         console.log(instructionsWithoutTraining);
-                        
+
                         setTotal(instructionsWithoutTraining.Total);
                         setInstructionsWithoutTrainingDataGrid(instructionsWithoutTraining.Data);
+
+                    });
+
+                break;
+            case 4:
+                getWorkersWithoutTraining(`${toDataSourceRequestString(initialDataState)}`, event.target.value.id)
+                    .then(workersWithoutTraining => {
+                        console.log(workersWithoutTraining);
+
+                        setTotal(workersWithoutTraining.Total);
+                        setWorkersWithoutTrainingDataGrid(workersWithoutTraining.Data);
 
                     });
                 break;
@@ -199,9 +201,9 @@ const ReportGrid = () => {
                     <GridColumn field="InstructionNumber" title="Instruction Number"/>
                 </Grid>
             }
-            {selectedReport.value.id == 3 && dataWorkersWithoutTrainingGrid.length > 0 &&
+        {selectedReport.value.id == 3 && dataInstructionsWithoutTrainingGrid.length > 0 &&
                 <Grid
-                    data={filterBy(dataWorkersWithoutTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
+            data={filterBy(dataInstructionsWithoutTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
                     filterable
                     filter={filter}
                     onFilterChange={(e: GridFilterChangeEvent) => setFilter(e.filter)}
@@ -211,15 +213,14 @@ const ReportGrid = () => {
                     pageable={true}
                     onPageChange={pageChange}
                 >
-                    {/*<GridColumn field="Name" title="Name"/>*/}
                     <GridColumn field="Number" title="Number"/>
                     <GridColumn field="Version" title="Version"/>
                 </Grid>
             }
 
-            {selectedReport.value.id == 4 && dataInstructionsWithoutTrainingGrid.length > 0 &&
+        {selectedReport.value.id == 4 && dataWorkersWithoutTrainingGrid.length > 0 &&
                 <Grid
-                    data={filterBy(dataInstructionsWithoutTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
+            data={filterBy(dataWorkersWithoutTrainingGrid.slice(page.skip, page.take + page.skip), filter)}
                     filterable
                     filter={filter}
                     onFilterChange={(e: GridFilterChangeEvent) => setFilter(e.filter)}
@@ -228,7 +229,8 @@ const ReportGrid = () => {
                     take={page.take}
                     pageable={true}
                     onPageChange={pageChange}
-                >
+        >
+                    <GridColumn field="Name" title="Name" />
                     <GridColumn field="Number" title="Number"/>
                     <GridColumn field="Version" title="Version"/>
                 </Grid>

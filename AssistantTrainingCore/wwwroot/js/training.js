@@ -83,23 +83,36 @@ $('#SaveTrainingWorkersGrid').click(
 
             console.log(JSON.stringify(trainingWorkersGrid));
 
+            var loader = $("#loaderSaveTrainingWorkersGrid").data("kendoLoader");
+            loader.show();
+
             $.ajax({
-                url: "Training/UpdateTrainings",
+                url: "Trainings/UpdateTrainings",
                 type: "POST",
                 data: JSON.stringify(trainingWorkersGrid),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 error: function (jqXHR, textStatus, errorThrown) {
+
+                    var grid = $("#trainingWorkersGridData").data("kendoGrid");
+                    grid.dataSource.read();
+                    var loader = $("#loaderSaveTrainingWorkersGrid").data("kendoLoader");
+                    loader.hide();
+                    
+                    
                     //$("#refWorkerGrid").html(jqXHR.responseText);
                     //LoadGrid();
-
-                    window.location.reload(true);
+                    //window.location.reload(true);
                 },
                 success: function (response) {
                     //$("#refWorkerGrid").html(partialViewResult);
                     //LoadGrid();
+                    //window.location.reload(true);
 
-                    window.location.reload(true);
+                    var grid = $("#trainingWorkersGridData").data("kendoGrid");
+                    grid.dataSource.read();
+                    var loader = $("#loaderSaveTrainingWorkersGrid").data("kendoLoader");
+                    loader.hide();
                 }
             });
         } else {
@@ -185,6 +198,14 @@ $("#sel").select2({
     templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
 });
 
+$("#sel").on("select2:unselect", function (e) {
+    $('#remainders').children().each(function () {
+        if ($(this)[0].innerText.includes('Wersja Papierowa:' + e.params.data.text)) {
+            $(this)[0].remove();
+        }
+    });
+});
+
 function formatRepo(repo) {
     if (repo.loading) return repo.text;
 
@@ -199,6 +220,20 @@ function formatRepo(repo) {
 }
 
 function formatRepoSelection(repo) {
+    if (repo.reminder) {
+        var name = repo.text || repo.id;
+        var contains = false;
+        var div = $('<div></div>').addClass('reminder-row').text('Wersja Papierowa:' + repo.text || repo.id);
+
+        $('#remainders').children().each(function () {
+            if ($(this)[0].innerText.includes('Wersja Papierowa:' + name)) {
+                contains = true;
+            }
+        });
+        if (contains == false) {
+            $(div).appendTo($('#remainders'));
+        }
+    }
     return repo.text || repo.id;
 }
 

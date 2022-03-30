@@ -30,18 +30,7 @@ namespace AssistantTrainingCore.Repositories
 
         public List<TrainingGroup> GetTrainings()
         {
-            //db.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
 
-            // var newInstructions =
-            // (from i in db.Instructions
-            //  group i by i.Number into groupedI
-            //  let maxVersion = groupedI.Max(gt => gt.Version)
-            //  select new InstructionLatestVersion
-            //  {
-            //      Key = groupedI.Key,
-            //      maxVersion = maxVersion,
-            //      ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID
-            //  }).ToList();
 
             var newInstructions = db.Instructions.GroupBy(c => c.Number)
                 .Select(g => new
@@ -50,20 +39,14 @@ namespace AssistantTrainingCore.Repositories
                     ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
                     maxVersion = g.Max(x => x.Version)
                 }).ToList();
+            
+            // TrainingName is null after delete training
+            //var test1 = db.TrainingGroups.Include("Instruction").ToList();
 
             var temp = db.TrainingGroups.Include("Instruction").Include("TrainingName").ToList();
 
-            var trainings = db.TrainingGroups
-                .Include("Instruction")
-                .Include("TrainingName")
-                .Where(x => newInstructions.Any(ni => ni.ID == x.InstructionId) && !x.TrainingName.Number.Equals("undefined"))
-                .AsQueryable<TrainingGroup>()
-                .OrderByDescending(o => o.TimeOfCreation);
-
-            return temp.Where(x => newInstructions.Any(ni => ni.ID == x.InstructionId) && !x.TrainingName.Number.Equals("undefined")).ToList();
+            return temp.Where(x => newInstructions.Any(ni => ni.ID == x.InstructionId) && !x.TrainingName.Number.Equals("undefined")).OrderByDescending(t=>t.TimeOfCreation).ToList();
             
-            //return trainings.Where(tt => !tt.TrainingName.Number.Equals("undefined"));
-            //return trainings;
         }
 
         public IQueryable<TrainingWorkersGridData> GetWorkersByTraining(string term, string type)

@@ -27,7 +27,7 @@ where NormalizedUserName is null
             nullable: true);
 
 
-Script:
+Script -Start- One by One:
 
 ALTER TABLE AspNetUsers
 ADD NormalizedUserName varchar(255) NULL;
@@ -40,7 +40,7 @@ ADD NormalizedEmail varchar(255) NULL;
 
 ALTER TABLE AspNetUsers
 ADD LockoutEnd datetime NULL;
-
+---------
 update AspNetUsers
    set NormalizedUserName = UPPER(Email)
 where NormalizedUserName is null
@@ -70,7 +70,8 @@ CREATE TABLE [dbo].[AspNetRoleClaims] (
 GO
 CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId]
     ON [dbo].[AspNetRoleClaims]([RoleId] ASC);
-    
+
+-- END Script
     
 ##PUBLISH
 - GO TO Rider and next run: "prod": "rimraf ../wwwroot/dist && webpack --mode production --progress"
@@ -108,3 +109,6 @@ INSERT INTO [dbo].[__EFMigrationsHistory]
            ('20220208202323_Intial'
            ,'6.0.1')
 GO
+
+-- NULLE: 
+  update [TrainingsCore].[dbo].[Instructions] set Name=[Number] where [Name]is null

@@ -33,13 +33,9 @@
 
   <ItemGroup>
     <Compile Remove="Templates\**" />
-    <Compile Remove="wwwroot\js\**" />
     <Content Remove="Templates\**" />
-    <Content Remove="wwwroot\js\**" />
     <EmbeddedResource Remove="Templates\**" />
-    <EmbeddedResource Remove="wwwroot\js\**" />
     <None Remove="Templates\**" />
-    <None Remove="wwwroot\js\**" />
   </ItemGroup>
 
   <ItemGroup>
