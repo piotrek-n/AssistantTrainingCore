@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<AssistantTrainingCore.ViewModel.AccountIndexData>
-
+<div class="container ">
+  <div class="p-2">
 <h2>Users</h2>
 <p>
 @if (User.IsInRole("Administrator"))
@@ -61,4 +62,6 @@ else
                 .Read(read => read.Action("SelectUsers", "Account"))
             )
 )
+</div>
+</div>
 

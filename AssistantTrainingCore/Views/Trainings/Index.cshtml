@@ -5,7 +5,8 @@
         $('#myModal').modal('show');
     }
 </script>
-
+<div class="container ">
+  <div class="p-2">
 <h3>Szkolenia</h3>
 <div class="row">
     <div class="col-md-2">
@@ -156,8 +157,9 @@ else
                     .Info(true)
                     .PreviousNext(true)
                     .Refresh(true)
-                )
-
+                )        
+                .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                .PersistSelection(true)
                 .Navigatable()
                 .Sortable()
                 .Filterable())           
@@ -210,10 +212,11 @@ else
 <div class="row top10">
 
 </div>
+<hr>
 <div class="row">
-    <div class="col-md-2"></div>
-    <div class="col-md-2"></div>
-    <div class="col-md-2">
+    <div class="col-md-1"></div>
+    <div class="col-md-1"></div>
+    <div class="col-md-3">
         @if (User.IsInRole("Administrator"))
         {
             <input type="button" class="btn btn-info col-md-10" value="Remove Training" id="RemoveTrainingToWorkerWorkersGrid" />
@@ -228,6 +231,7 @@ else
 
         <div class="input-group mb-4">
               @(Html.Kendo().DatePicker()
+              .Format("dd.MM.yyyy")
               .Name("TrainingDate")
               .Value(DateTime.Now.Date.ToShortDateString())
               .Culture("pl-PL")
@@ -235,7 +239,7 @@ else
         )
           </div>
     </form>
-        <div class="col-md-2">
+        <div class="col-md-3">
             @(Html.Kendo().Button()
                     .Name("SaveTrainingWorkersGrid")
                     .HtmlAttributes( new { @class = "btn btn-info col-md-10" } )
@@ -249,6 +253,8 @@ else
                 )
         </div>
 
+</div>
+</div>
 </div>
 
 <script>

@@ -246,21 +246,35 @@ namespace AssistantTrainingCore.Controllers
             var lstInstructions = new List<InstructionsJson>();
             if (t.Equals("true"))
             {
-                lstInstructions = (
-                        from i in db.Instructions
-                        group i by i.Number
-                        into groupedI
-                        let maxVersion = groupedI.Max(gt => gt.Version)
-                        select new
-                        {
-                            Key = groupedI.Key,
-                            ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID,
-                            Number = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Number,
-                            Name = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Name,
-                            Version = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Version,
-                            Reminder = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Reminder
-                        }
-                    ).Select(x => new InstructionsJson
+                //lstInstructions = (
+                //        from i in db.Instructions
+                //        group i by i.Number
+                //        into groupedI
+                //        let maxVersion = groupedI.Max(gt => gt.Version)
+                //        select new
+                //        {
+                //            Key = groupedI.Key,
+                //            ID = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).ID,
+                //            Number = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Number,
+                //            Name = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Name,
+                //            Version = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Version,
+                //            Reminder = groupedI.FirstOrDefault(gt2 => gt2.Version == maxVersion).Reminder
+                //        }
+                //    ).Select(x => new InstructionsJson
+                //    { id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version })
+                //    .Where(x => x.text.ToUpper().Contains(q.ToUpper()))
+                //    .ToList();
+
+                lstInstructions = db.Instructions.GroupBy(c => c.Number)
+                    .Select(g => new
+                    {
+                        Key = g.Key,
+                        ID = db.Instructions.FirstOrDefault(x => x.Number == g.Key && x.Version == g.Max(x => x.Version)).ID,
+                        Number = g.FirstOrDefault(gt2 => gt2.Version == g.Max(x => x.Version)).Number,
+                        Name = g.FirstOrDefault(gt2 => gt2.Version == g.Max(x => x.Version)).Name,
+                        Version = g.Max(x => x.Version),
+                        Reminder = g.FirstOrDefault(gt2 => gt2.Version == g.Max(x => x.Version)).Reminder
+                    }).Select(x => new InstructionsJson
                     { id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version })
                     .Where(x => x.text.ToUpper().Contains(q.ToUpper()))
                     .ToList();

@@ -58,32 +58,7 @@ const ReportGrid = () => {
         ]
     };
     const [filter, setFilter] = React.useState<CompositeFilterDescriptor>(initialFilter);
-    //useEffect(() => {
 
-    //    getProducts(`${toDataSourceRequestString(dataState)}`)
-    //        .then(products => {
-    //            console.log(products);
-
-    //            setTimeout(function () {
-    //            var allColumns = products.Data.length > 0 ? Object.keys(products.Data[0]) : []
-    //            var columnsToShow = allColumns.map((item, i) => <GridColumn field={item} key={i} />);
-    //                setDataAllColumns(columnsToShow);
-    //            }, 1000);
-
-    //            setTotal(products.Total);
-    //            setDataGrid(products.Data);
-
-    //        });
-
-    //}, []);
-    //const [_, forceUpdate] = useReducer((x) => x + 1, 0);
-    //var test = dataAllColumns.map((item, i) => {
-
-    //    return (
-    //        <GridColumn
-    //            field={item} key={i} />
-    //    );
-    //});
     
     // https://www.telerik.com/kendo-react-ui/components/grid/filtering/
 
@@ -99,7 +74,6 @@ const ReportGrid = () => {
         setSelectedReport({
             value: event.target.value,
         });
-        debugger;
         switch (event.target.value.id) {
           
             case 2:
@@ -155,7 +129,8 @@ const ReportGrid = () => {
         setPage(event.page);
     };
 
-    return (<>
+    return (<div className="container ">
+        <div className="p-2">
             <div>
                 <div className="example-config">
                     Wybrano raport: {JSON.stringify(selectedReport.value.text)}
@@ -237,7 +212,8 @@ const ReportGrid = () => {
             }
 
 
-        </>
+        </div>
+        </div>
     );
 
 };

@@ -61,6 +61,17 @@
                 <a class="navbar-brand" asp-area="" asp-controller="Account" asp-action="Index">Users</a>
                 }
                 <a class="navbar-brand" asp-area="" asp-controller="AppUser" asp-action="Index">Account</a>
+                @if ( User.Identity.IsAuthenticated)
+                {
+                    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+                        </ul>
+                    }
+                }
 
 @*         <div class="d-lg-block d-none dropdown">
             <a class="nav-link dropdown-toggle icon-globe" href="#" id="navbarDropdownMenuLink78" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-globe" aria-hidden="true"></i> Language</a>

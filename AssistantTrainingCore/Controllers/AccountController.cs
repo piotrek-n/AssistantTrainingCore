@@ -101,6 +101,16 @@ namespace AssistantTrainingCore.Controllers
             return View(model);
         }
 
+        //
+        // POST: /Account/LogOff
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOff()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
         public async Task<IActionResult> Update()
         {
             var us = _userManager.Users.ToList();

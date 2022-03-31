@@ -23,7 +23,8 @@ namespace AssistantTrainingCore.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Workers");
+            //return View();
         }
 
         public IActionResult Privacy()
