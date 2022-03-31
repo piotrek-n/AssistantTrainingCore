@@ -44,7 +44,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container justify-content-end">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <a class="navbar-brand" style="display:none" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 <a class="navbar-brand" asp-area="" asp-controller="Workers" asp-action="Index">Workers</a>
                 @if (User.IsInRole("Administrator"))
                 {
@@ -68,7 +68,7 @@
                         @Html.AntiForgeryToken()
 
                         <ul class="nav navbar-nav navbar-right">
-                            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+                            <li><a class="navbar-brand" href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
                         </ul>
                     }
                 }

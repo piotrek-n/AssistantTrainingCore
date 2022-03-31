@@ -71,7 +71,7 @@ else
                 columns.Bound(c => c.Name).Title("Nazwa").Filterable(true).Width(110);
                 columns.Bound(c => c.Number).Title("Numer").Filterable(true).Width(50);
                 columns.Bound(c => c.Version).Title("Wersja").Filterable(true).Width(30);
-                columns.Bound(c => c.UserName).Title("Użytkownik").Filterable(true).Width(50);
+                columns.Bound(c => c.UserName).Title("Użytkownik").Filterable(true).Width(30);
                 columns.Bound(c => c.TimeOfCreation).Title("Data").Sortable(true).Filterable(true).Width(50);
 
                 columns.Bound(p => p.GrupsInString).Title("Grupy").ClientTemplate("#= changeNewLine(GrupsInString) #").Sortable(true).Filterable(true).Width(50);

@@ -54,6 +54,10 @@
 
         @(Html.Kendo().Grid(Model.instructionVsTrainingList.ToList())
             .Name("InstructionVsTrainingList")
+            .Events(events =>
+            {
+                events.DataBound("InstructionVsTrainingList_DataBound"); 
+            })
             .Columns(columns =>
             {
                 columns.Bound(c => c.RowNo).Title("Lp.").Filterable(true).Width(10);
@@ -80,6 +84,18 @@
         </p>
     </div>
 </div>
+
+<script>
+
+    function InstructionVsTrainingList_DataBound() { 
+        var grid = this;
+        grid.tbody.find('>tr').each(function () {
+            var dataItem = grid.dataItem(this);
+            if (dataItem.WorkerIsSuspendedDesc === "Tak" ) {
+                $(this).addClass('bgRed');
+            }});
+    }
+</script>
 
 
 @*@section scripts {

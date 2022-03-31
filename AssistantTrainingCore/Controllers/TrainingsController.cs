@@ -80,7 +80,7 @@ namespace AssistantTrainingCore.Controllers
         //    return Json(items.ToDataSourceResult(request)); //zmienic na ViewModel
         //}
 
-        public ActionResult PlayerStats_Read_Bound([DataSourceRequest] DataSourceRequest request, string trainingNameId, string term)
+        public ActionResult Trainings_Read_Bound([DataSourceRequest] DataSourceRequest request, string trainingNameId, string term)
         {
             var items = workerRepository.GetWorkersByTraining(trainingNameId, term).OrderBy(p => 0).OrderBy(x => x.WorkerFullName).ToList();
             return Json(items.ToDataSourceResult(request));
@@ -275,7 +275,7 @@ namespace AssistantTrainingCore.Controllers
                         Version = g.Max(x => x.Version),
                         Reminder = g.FirstOrDefault(gt2 => gt2.Version == g.Max(x => x.Version)).Reminder
                     }).Select(x => new InstructionsJson
-                    { id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version })
+                    { id = x.ID.ToString(), text = x.Number, name = x.Name, version = x.Version, reminder = x.Reminder })
                     .Where(x => x.text.ToUpper().Contains(q.ToUpper()))
                     .ToList();
             }
