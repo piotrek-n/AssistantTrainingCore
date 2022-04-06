@@ -73,9 +73,6 @@ namespace AssistantTrainingCore.Controllers
                                 }).ToList();
             
 
-
-            var test = db.Instructions.ToList();
-
             var allInstructions =
                 db.Instructions.ToList().Where(x => newInstructions.Any(ni => ni.ID == x.ID)).OrderByDescending(ins => ins.TimeOfCreation).ToList();
             

@@ -11,7 +11,7 @@
 <h2>Workers</h2>
 
 <p>
-    @if (User.IsInRole("Administrator"))
+    @if (User.IsInRole("Administrator") || User.IsInRole("Operator") )
     {
         <div class="row">
             <div class="col-md-1">

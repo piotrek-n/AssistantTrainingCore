@@ -6,7 +6,7 @@ namespace AssistantTrainingCore.ViewModel
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "User")]
         public string Email { get; set; }
     }
 
